@@ -1,0 +1,18 @@
+[Unit]
+Description=Magneta Contract Risk (x402 seller: HTTP + MCP)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=dominique
+WorkingDirectory=/srv/magneta/risk-x402
+EnvironmentFile=/srv/magneta/risk-x402/.env.local
+ExecStart=/usr/bin/node dist/server.js
+Restart=always
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
