@@ -1,5 +1,11 @@
 # Journal — magneta-risk-x402
 
+## 2026-10-16 — 02:05 — Promotion gratuite : dépôt public + registre MCP
+- Dépôt GitHub public créé : https://github.com/Bosacks/magneta-risk-x402 (aucun secret, `.env.local` et logs ignorés)
+- Publié au registre MCP officiel : `io.github.Bosacks/magneta-contract-risk` v0.1.0, remote streamable-http https://x402.magneta.finance/mcp (auth GitHub, pas de DNS ; description ≤ 100 caractères)
+- Page écosystème x402.org : n'existe plus (404) ; la Fondation ne liste que ses membres payants → canal abandonné
+- Restent manuels : Discord x402/CDP, X, annuaires Smithery/Glama/PulseMCP
+
 ## 2026-10-16 — 01:45 — Fiche MCP : exemple d'arguments ajouté
 - Cause du « processing » sans fin : le Bazaar appelle l'outil MCP avec `info.input.example` pour obtenir le 402 ; notre déclaration n'avait ni `example` ni `transport`
 - `src/discovery.ts` : `example { chainId: 8453, address: USDC Base }` + `transport: "streamable-http"` ; test mis à jour (18/18)
