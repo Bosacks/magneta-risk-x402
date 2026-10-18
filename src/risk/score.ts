@@ -75,3 +75,27 @@ export function computeScore(i: ScoreInput): ScoreResult {
   score = Math.min(100, score);
   return { score, level: levelFor(score), flags };
 }
+
+/** Machine-readable copy of the rubric above, served by the free MCP tool `scoring_rubric`. Keep in sync with computeScore. */
+export const SCORING_RUBRIC = {
+  scale: "0-100, higher is riskier; points are additive and capped at 100",
+  levels: { low: "0-24", medium: "25-49", high: "50-74", critical: "75-100" },
+  points: [
+    { flag: "unverified-source", points: 25, meaning: "logic contract source is not verified on Blockscout nor Sourcify" },
+    { flag: "source-verification-unknown", points: 0, meaning: "every source provider was unreachable; not penalised, flagged only" },
+    { flag: "upgradeable-proxy", points: 15, meaning: "proxy pattern detected (EIP-1967, EIP-1822, legacy zeppelinos, EIP-1167); the admin can change behaviour" },
+    { flag: "owner-not-renounced", points: 10, meaning: "owner() exists and is not the zero address" },
+    { flag: "mint-function", points: 15, meaning: "a mint selector is present in the bytecode (supply can grow)" },
+    { flag: "blacklist-function", points: 15, meaning: "a blacklist or bot-list selector is present (transfers can be blocked per address)" },
+    { flag: "fee-or-limit-setters", points: 10, meaning: "fee, tax, max-tx, max-wallet or trading-switch setters are present" },
+    { flag: "pausable", points: 5, meaning: "pause/unpause selectors are present" },
+    { flag: "currently-paused", points: 5, meaning: "paused() currently returns true" },
+    { flag: "selfdestruct-opcode", points: 10, meaning: "SELFDESTRUCT opcode present in the bytecode" },
+    { flag: "aderyn-high-findings:N", points: "5 per high-severity finding, capped at 20", meaning: "aderyn static analysis high-severity detectors that fired on the verified source" },
+  ],
+  caveats: [
+    "Selector presence in bytecode is a heuristic: a function may exist but be restricted or unused.",
+    "A high score flags centralisation and upgrade power, not a proven exploit; a low score is not an endorsement.",
+    "Reports are cached for 10 minutes per chain and address.",
+  ],
+} as const;

@@ -15,6 +15,7 @@ import { ADDRESS_RE, CHAINS, isSupportedChain } from "./chains.js";
 import { NETWORK, PORT, PRICE, PUBLIC_URL, need } from "./config.js";
 import { makeFacilitatorClient } from "./facilitator-client.js";
 import { AnalysisError, analyzeContract } from "./risk/analyze.js";
+import { SCORING_RUBRIC } from "./risk/score.js";
 
 const network = NETWORK();
 const payTo = need("PAY_TO") as `0x${string}`;
@@ -94,13 +95,24 @@ const paid = createPaymentWrapper(resourceServer, {
 
 /** Builds a fresh MCP server (stateless mode: one server + transport per HTTP request). */
 function buildServer(): McpServer {
-  const server = new McpServer({ name: "Magneta Contract Risk", version: "0.1.0" });
-  server.tool(
+  const server = new McpServer({ name: "Magneta Contract Risk", version: "0.1.1" });
+  server.registerTool(
     "contract_risk_summary",
-    `On-chain smart-contract risk report (score 0-100, proxy, owner, risky selectors, source verification, static analysis). Costs ${PRICE} in USDC via x402.`,
     {
-      chainId: z.number().int().refine(isSupportedChain, "unsupported chainId; call supported_chains").describe("EVM chain id"),
-      address: z.string().regex(ADDRESS_RE, "invalid address").describe("Contract address (0x...)"),
+      title: "Contract risk summary",
+      description:
+        `Analyze a deployed smart contract and return a deterministic risk report: 0-100 score with level (low/medium/high/critical), ` +
+        `proxy/upgradeability, owner and pause state, risky selectors found in the bytecode (mint, blacklist, fee/tax setters, pause, upgrade), ` +
+        `SELFDESTRUCT/DELEGATECALL opcodes, source verification (Blockscout, Sourcify) and aderyn static-analysis findings. ` +
+        `Use it before trading, bridging, approving or integrating a token or protocol contract; use supported_chains first if you are unsure the chain id is covered, ` +
+        `and scoring_rubric to interpret the score. Paid: ${PRICE} in USDC on Base per call via x402. The first call answers with an x402 payment ` +
+        `challenge; an x402-enabled client pays automatically and the same call then returns the report. Read-only, no side effects; failed analyses ` +
+        `(not a contract, upstream data source down) are not charged; identical requests within 10 minutes return the cached report.`,
+      inputSchema: {
+        chainId: z.number().int().refine(isSupportedChain, "unsupported chainId; call supported_chains").describe(`EVM chain id, one of: ${Object.keys(CHAINS).join(", ")}`),
+        address: z.string().regex(ADDRESS_RE, "invalid address").describe("Contract address, 0x followed by 40 hex characters (an EOA is rejected without charge)"),
+      },
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     },
     paid(async (args: { chainId: number; address: string }) => {
       try {
@@ -113,9 +125,32 @@ function buildServer(): McpServer {
       }
     }),
   );
-  server.tool("supported_chains", "Free: list the chains this service can analyze.", {}, async () => ({
-    content: [{ type: "text" as const, text: JSON.stringify(Object.values(CHAINS).map(({ id, name }) => ({ chainId: id, name }))) }],
-  }));
+  server.registerTool(
+    "supported_chains",
+    {
+      title: "Supported chains",
+      description:
+        "List the EVM chains contract_risk_summary can analyze, as { chainId, name, testnet } objects. Free, read-only, no payment and no parameters. " +
+        "Call it when you need to map a chain name to its id or to check coverage before paying for a report.",
+      inputSchema: {},
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+    },
+    async () => ({
+      content: [{ type: "text" as const, text: JSON.stringify(Object.values(CHAINS).map(({ id, name, testnet }) => ({ chainId: id, name, testnet: Boolean(testnet) }))) }],
+    }),
+  );
+  server.registerTool(
+    "scoring_rubric",
+    {
+      title: "Scoring rubric",
+      description:
+        "Return the exact rubric behind contract_risk_summary scores: points per flag, the level thresholds and what each flag means. Free, read-only, " +
+        "no parameters. Call it to explain a score to a user or to decide your own threshold before acting on a report.",
+      inputSchema: {},
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+    },
+    async () => ({ content: [{ type: "text" as const, text: JSON.stringify(SCORING_RUBRIC) }] }),
+  );
   return server;
 }
 

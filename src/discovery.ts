@@ -3,7 +3,7 @@ import { declareDiscoveryExtension } from "@x402/extensions/bazaar";
 import { CHAINS } from "./chains.js";
 
 export const DESCRIPTION =
-  "Deterministic on-chain smart-contract risk report (proxy, ownership, risky selectors, verified source, static analysis) with a 0-100 score.";
+  "Deterministic smart-contract risk report for any deployed contract on 20 EVM chains: 0-100 score, proxy/upgradeability, owner and pause state, mint/blacklist/fee selectors, SELFDESTRUCT, verified source and aderyn static analysis. Use before trading, approving, bridging or integrating a token or protocol. Read-only; failed analyses are not charged.";
 
 export const EXAMPLE_REPORT = {
   chainId: 8453, address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", analyzedAt: "2026-01-01T00:00:00.000Z",
