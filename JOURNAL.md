@@ -1,5 +1,11 @@
 # Journal — magneta-risk-x402
 
+## 2026-10-17 — 22:40 — Glama réclamée, qualité des outils (v0.1.1)
+- Fiche Glama importée seule depuis le registre officiel (`glama.ai/mcp/connectors/io.github.Bosacks/magneta-contract-risk`), propriété vérifiée par Dominique via GitHub ; statut Healthy, TDQS 3,7/5
+- D'après le détail TDQS : descriptions d'outils réécrites (quand utiliser, flux de paiement x402, pas de facturation sur échec, cache), annotations MCP readOnly/idempotent, 3e outil gratuit `scoring_rubric` (grille exportée de `score.ts`), description Bazaar enrichie (350 car.)
+- Déployé, registre MCP republié en 0.1.1, dépôt poussé ; paiements de rafraîchissement Bazaar (HTTP + MCP)
+- Concurrents repérés sur Glama (x402 aussi) : CYRE Guardian, hostdefi/trustdex, Tollbooth Swap, verdix, Watchdog, token-safety
+
 ## 2026-10-16 — 02:05 — Promotion gratuite : dépôt public + registre MCP
 - Dépôt GitHub public créé : https://github.com/Bosacks/magneta-risk-x402 (aucun secret, `.env.local` et logs ignorés)
 - Publié au registre MCP officiel : `io.github.Bosacks/magneta-contract-risk` v0.1.0, remote streamable-http https://x402.magneta.finance/mcp (auth GitHub, pas de DNS ; description ≤ 100 caractères)
