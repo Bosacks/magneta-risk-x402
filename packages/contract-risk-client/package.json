@@ -2,17 +2,42 @@
   "name": "@magneta-finance/contract-risk",
   "version": "0.1.0",
   "private": false,
-  "description": "Client for the Magneta Contract Risk x402 service (smart-contract risk reports for AI agents, $0.02 USDC on Base) plus LangChain.js / Vercel AI SDK tool adapters. NOTE: license pending (UNLICENSED placeholder).",
-  "license": "UNLICENSED",
+  "description": "Client for the Magneta Contract Risk x402 service (smart-contract risk reports for AI agents, $0.02 USDC on Base) plus LangChain.js / Vercel AI SDK tool adapters. NOTE: (UNLICENSED placeholder).",
+  "license": "MIT",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "exports": { ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" } },
-  "files": ["dist", "README.md"],
-  "engines": { "node": ">=20" },
-  "repository": { "type": "git", "url": "git+https://github.com/Bosacks/magneta-risk-x402.git", "directory": "packages/contract-risk-client" },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bosacks/magneta-risk-x402.git",
+    "directory": "packages/contract-risk-client"
+  },
   "homepage": "https://x402.magneta.finance",
-  "keywords": ["x402", "mcp", "smart-contract", "risk", "agents", "langchain", "ai-sdk", "base", "usdc"],
+  "keywords": [
+    "x402",
+    "mcp",
+    "smart-contract",
+    "risk",
+    "agents",
+    "langchain",
+    "ai-sdk",
+    "base",
+    "usdc"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "tsx --test test/*.test.ts",

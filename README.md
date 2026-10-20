@@ -131,3 +131,7 @@ first real paid call through a Bazaar-enabled facilitator (CDP). The public x402
 Live at https://x402.magneta.finance on Base mainnet (`eip155:8453`), Coinbase CDP facilitator, $0.02 per call, listed in the
 x402 Bazaar (route `/v1/risk/:chainId/:address`). Buyers need USDC on Base and no ETH. The facilitator rejects payments where
 the payer equals `payTo` (`self_send_not_allowed`).
+
+## License
+
+MIT, Copyright (c) 2026 Magneta Finance. See [LICENSE](LICENSE).
