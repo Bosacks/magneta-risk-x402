@@ -68,8 +68,9 @@ Sourcify are written to `remappings.txt` so aderyn can resolve `@openzeppelin/..
 - **Agent skill**: `npx skills add Bosacks/magneta-risk-x402 --skill magneta-contract-risk` installs
   [skills/magneta-contract-risk/SKILL.md](skills/magneta-contract-risk/SKILL.md), which teaches an agent when and how to
   buy a report over HTTP, MCP or a Coinbase Agentic Wallet. [![skills.sh](https://skills.sh/b/Bosacks/magneta-risk-x402)](https://skills.sh/Bosacks/magneta-risk-x402)
-- **Client package**: [`packages/contract-risk-client`](packages/contract-risk-client) (`@magnetafinance/contract-risk`)
-  wraps the x402 payment flow in a typed client and ships tool adapters for LangChain.js, the Vercel AI SDK and
+- **Client package**: [`@magnetafinance/contract-risk`](https://www.npmjs.com/package/@magnetafinance/contract-risk)
+  (`npm i @magnetafinance/contract-risk @x402/core@2.28.0 @x402/evm@2.28.0 @x402/fetch@2.28.0 viem@2.57.7`, source in
+  [`packages/contract-risk-client`](packages/contract-risk-client)) wraps the x402 payment flow in a typed client and ships tool adapters for LangChain.js, the Vercel AI SDK and
   OpenAI/Anthropic function calling.
 
 ## Run
