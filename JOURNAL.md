@@ -5,7 +5,7 @@
 - Skill d'agent `skills/magneta-contract-risk/SKILL.md` (format skills.sh, calqué sur la skill x402 de Coinbase) : quand utiliser, 3 chemins d'appel, lecture du score, erreurs jamais facturées
 - Paquet `packages/contract-risk-client` (`@magneta-finance/contract-risk` 0.1.0, non publié : npm non connecté) : client typé x402 + adaptateurs LangChain.js, AI SDK, function calling ; 5 tests
 - Recherche vitrines : Base = formulaire Google (repo base/web archivé 03-2026) ; awesome-x402 = xpaysh (292 ★, 856 PR ouvertes) section Security & Audits ; curation Coinbase = éditoriale sans formulaire ; skills.sh = classement par installations, pas de soumission
-- Déployé ; paiements de rafraîchissement Bazaar après changement des descriptions
+- Déployé ; paiements de rafraîchissement Bazaar après changement des descriptions ; PR awesome-x402 ouverte : https://github.com/xpaysh/awesome-x402/pull/1923
 
 ## 2026-10-17 — 22:40 — Glama réclamée, qualité des outils (v0.1.1)
 - Fiche Glama importée seule depuis le registre officiel (`glama.ai/mcp/connectors/io.github.Bosacks/magneta-contract-risk`), propriété vérifiée par Dominique via GitHub ; statut Healthy, TDQS 3,7/5
