@@ -1,10 +1,11 @@
 # Journal — magneta-risk-x402
 
 ## 2026-10-20 — Palier gratuit, skill d'agent, paquet client, vitrines
+- Paquet renommé `@magnetafinance/contract-risk` (le compte npm est `magnetafinance`, pas d'organisation) ; prêt à publier
 - Licence MIT ajoutée (décision Dominique, titulaire « Magneta Finance ») : racine + paquet npm, champ `license` MIT
 - Palier gratuit : `GET /v1/flags/:chainId/:address` + outil MCP `contract_quick_flags` (bytecode seul, partialScore, 30 req/min/IP, 429) ; `analyze.ts` refactorisé en helpers partagés, rapport payant inchangé ; 22 tests
 - Skill d'agent `skills/magneta-contract-risk/SKILL.md` (format skills.sh, calqué sur la skill x402 de Coinbase) : quand utiliser, 3 chemins d'appel, lecture du score, erreurs jamais facturées
-- Paquet `packages/contract-risk-client` (`@magneta-finance/contract-risk` 0.1.0, non publié : npm non connecté) : client typé x402 + adaptateurs LangChain.js, AI SDK, function calling ; 5 tests
+- Paquet `packages/contract-risk-client` (`@magnetafinance/contract-risk` 0.1.0, non publié : npm non connecté) : client typé x402 + adaptateurs LangChain.js, AI SDK, function calling ; 5 tests
 - Recherche vitrines : Base = formulaire Google (repo base/web archivé 03-2026) ; awesome-x402 = xpaysh (292 ★, 856 PR ouvertes) section Security & Audits ; curation Coinbase = éditoriale sans formulaire ; skills.sh = classement par installations, pas de soumission
 - Déployé ; paiements de rafraîchissement Bazaar après changement des descriptions ; PR awesome-x402 ouverte : https://github.com/xpaysh/awesome-x402/pull/1923
 

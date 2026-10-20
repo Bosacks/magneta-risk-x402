@@ -1,4 +1,4 @@
-# @magneta-finance/contract-risk
+# @magnetafinance/contract-risk
 
 Typed client and agent-tool adapters for [Magneta Contract Risk](https://x402.magneta.finance): a deterministic smart-contract risk
 report (0-100 score, proxy/owner/mint/blacklist/fee flags, verified source, static analysis) on 20 EVM chains, paid per call
@@ -9,13 +9,13 @@ with [x402](https://x402.org) (USDC on Base, $0.02, no ETH needed). Free bytecod
 ## Install
 
 ```bash
-npm i @magneta-finance/contract-risk @x402/core@2.28.0 @x402/evm@2.28.0 @x402/fetch@2.28.0 viem@2.57.7
+npm i @magnetafinance/contract-risk @x402/core@2.28.0 @x402/evm@2.28.0 @x402/fetch@2.28.0 viem@2.57.7
 ```
 
 ## Use
 
 ```ts
-import { createContractRiskClient } from "@magneta-finance/contract-risk";
+import { createContractRiskClient } from "@magnetafinance/contract-risk";
 
 const risk = createContractRiskClient({
   privateKey: process.env.BUYER_PRIVATE_KEY as `0x${string}`, // wallet with USDC on Base; use a dedicated low-balance key
@@ -40,7 +40,7 @@ The package does not depend on langchain; you pass `tool` and `z`.
 ```ts
 import { tool } from "@langchain/core/tools";
 import { z } from "zod";
-import { toLangChainTool } from "@magneta-finance/contract-risk";
+import { toLangChainTool } from "@magnetafinance/contract-risk";
 
 const riskTool = toLangChainTool(risk, { tool, z }); // DynamicStructuredTool, returns the report as a JSON string
 ```
@@ -49,7 +49,7 @@ const riskTool = toLangChainTool(risk, { tool, z }); // DynamicStructuredTool, r
 
 ```ts
 import { tool, jsonSchema, generateText } from "ai";
-import { toAiSdkTool } from "@magneta-finance/contract-risk";
+import { toAiSdkTool } from "@magnetafinance/contract-risk";
 
 const tools = { contract_risk_summary: toAiSdkTool(risk, { tool, jsonSchema }) };
 ```

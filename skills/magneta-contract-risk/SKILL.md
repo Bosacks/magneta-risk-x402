@@ -65,7 +65,7 @@ const report = await res.json();
 console.error("paid tx", settle.transaction, "payer", settle.payer);
 ```
 
-The same wrapper is packaged as `@magneta-finance/contract-risk` (`createContractRiskClient({ privateKey })` with `risk()`, `quickFlags()`, LangChain and AI SDK adapters).
+The same wrapper is packaged as `@magnetafinance/contract-risk` (`createContractRiskClient({ privateKey })` with `risk()`, `quickFlags()`, LangChain and AI SDK adapters).
 
 ### (b) MCP with `@x402/mcp`
 
