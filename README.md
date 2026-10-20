@@ -60,6 +60,18 @@ Chains without a Blockscout instance (BNB, Sonic, Mantle, Avalanche) rely on Sou
 excluded on purpose: EraVM bytecode defeats the opcode and selector heuristics. Compiler remappings from Blockscout or
 Sourcify are written to `remappings.txt` so aderyn can resolve `@openzeppelin/...`-style imports.
 
+## Free tier, agent skill and client package
+
+- **Free preview**: `GET /v1/flags/:chainId/:address` and the MCP tool `contract_quick_flags` return the bytecode-only part of
+  the report (proxy, owner/pause state, risky selectors, opcodes, partial score) with no payment. Rate-limited to 30
+  requests per minute per IP. Source verification and aderyn findings are only in the paid report.
+- **Agent skill**: `npx skills add Bosacks/magneta-risk-x402 --skill magneta-contract-risk` installs
+  [skills/magneta-contract-risk/SKILL.md](skills/magneta-contract-risk/SKILL.md), which teaches an agent when and how to
+  buy a report over HTTP, MCP or a Coinbase Agentic Wallet. [![skills.sh](https://skills.sh/b/Bosacks/magneta-risk-x402)](https://skills.sh/Bosacks/magneta-risk-x402)
+- **Client package**: [`packages/contract-risk-client`](packages/contract-risk-client) (`@magneta-finance/contract-risk`)
+  wraps the x402 payment flow in a typed client and ships tool adapters for LangChain.js, the Vercel AI SDK and
+  OpenAI/Anthropic function calling.
+
 ## Run
 
 ```bash

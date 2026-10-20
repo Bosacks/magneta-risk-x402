@@ -161,35 +161,51 @@ async function lookupSource(chain: ChainInfo, address: string): Promise<SourceLo
   return { blockscout: bs.info, sourcify: sf.info, files: [], remappings: [], language: null, verified: known ? false : null };
 }
 
-async function analyzeUncached(chain: ChainInfo, address: Address): Promise<RiskReport> {
-  const t0 = Date.now();
-  const client = clientFor(chain);
+type Scan = ReturnType<typeof scanBytecode>;
 
+/** Reads and scans the target bytecode; throws AnalysisError("not_a_contract") for an EOA. Shared by the full and the free tier. */
+async function readContractCode(client: PublicClient, chain: ChainInfo, address: Address): Promise<{ code: string; bytecodeSize: number; own: Scan }> {
   const codeRaw = await client.getCode({ address }).catch((e) => {
     throw new Error(`RPC error while reading bytecode: ${String(e?.shortMessage ?? e?.message ?? e).slice(0, 160)}`);
   });
   if (!codeRaw || codeRaw === "0x") throw new AnalysisError(`${address} has no contract code on ${chain.name}`, "not_a_contract");
-  const code = codeRaw;
-  const bytecodeSize = (code.length - 2) / 2;
-  const own = scanBytecode(code);
+  return { code: codeRaw, bytecodeSize: (codeRaw.length - 2) / 2, own: scanBytecode(codeRaw) };
+}
+
+/** Bytecode scan of a proxy implementation, undefined when it has no code. */
+async function scanImplementation(client: PublicClient, impl: Address): Promise<{ scan: Scan; size: number } | undefined> {
+  const implCode = await tryOr(client.getCode({ address: impl }));
+  return implCode && implCode !== "0x" ? { scan: scanBytecode(implCode), size: (implCode.length - 2) / 2 } : undefined;
+}
+
+function opcodeSummary(own: Scan, impl: { scan: Scan; size: number } | undefined): RiskReport["opcodes"] {
+  return {
+    selfdestruct: own.hasSelfdestruct,
+    delegatecall: own.hasDelegatecall,
+    ...(impl ? { implementation: { bytecodeSize: impl.size, selfdestruct: impl.scan.hasSelfdestruct, delegatecall: impl.scan.hasDelegatecall } } : {}),
+  };
+}
+
+async function analyzeUncached(chain: ChainInfo, address: Address): Promise<RiskReport> {
+  const t0 = Date.now();
+  const client = clientFor(chain);
+
+  const { code, bytecodeSize, own } = await readContractCode(client, chain, address);
 
   // Stage 2 (parallel): Blockscout, ERC-20 probe, proxy slots.
   const [erc20, bs] = await Promise.all([probeErc20(client, address), lookupSource(chain, address)]);
   const proxy = await detectProxy(client, address, code, bs.blockscout.implementations ?? []);
 
   // Implementation bytecode + source (stage 3).
-  let implScan: ReturnType<typeof scanBytecode> | undefined;
-  let implSize = 0;
+  let implFound: { scan: Scan; size: number } | undefined;
   let implBs: SourceLookup | undefined;
   if (proxy?.implementation) {
     const impl = proxy.implementation as Address;
-    const [implCode, ibs] = await Promise.all([tryOr(client.getCode({ address: impl })), lookupSource(chain, impl)]);
-    if (implCode && implCode !== "0x") {
-      implScan = scanBytecode(implCode);
-      implSize = (implCode.length - 2) / 2;
-    }
+    const [f, ibs] = await Promise.all([scanImplementation(client, impl), lookupSource(chain, impl)]);
+    implFound = f;
     implBs = ibs;
   }
+  const implScan = implFound?.scan;
 
   const push4 = new Set<string>([...own.push4, ...(implScan?.push4 ?? [])]);
   const found = matchSelectors(push4);
@@ -236,11 +252,7 @@ async function analyzeUncached(chain: ChainInfo, address: Address): Promise<Risk
     bytecodeSize,
     proxy,
     erc20,
-    opcodes: {
-      selfdestruct: own.hasSelfdestruct,
-      delegatecall: own.hasDelegatecall,
-      ...(implScan ? { implementation: { bytecodeSize: implSize, selfdestruct: implScan.hasSelfdestruct, delegatecall: implScan.hasDelegatecall } } : {}),
-    },
+    opcodes: opcodeSummary(own, implFound),
     selectors: { found },
     blockscout: { ...bs.blockscout, ...(implBs ? { implementation: implBs.blockscout } : {}) },
     ...(bs.sourcify || implBs?.sourcify
@@ -254,8 +266,8 @@ async function analyzeUncached(chain: ChainInfo, address: Address): Promise<Risk
   };
 }
 
-const cache = new Map<string, { at: number; report: RiskReport }>();
-const inflight = new Map<string, Promise<RiskReport>>();
+const cache = new Map<string, { at: number; value: unknown }>();
+const inflight = new Map<string, Promise<unknown>>();
 
 /** Test helper. */
 export function clearCache(): void {
@@ -263,27 +275,30 @@ export function clearCache(): void {
   inflight.clear();
 }
 
-export async function analyzeContract(chainId: number, rawAddress: string): Promise<RiskReport> {
+/** Resolves and validates the inputs shared by both tiers. */
+function resolveTarget(chainId: number, rawAddress: string): { chain: ChainInfo; address: Address } {
   const chain = getChain(chainId);
   if (!chain) throw new AnalysisError(`Unsupported chainId ${chainId}`, "unsupported_chain");
   if (!/^0x[0-9a-fA-F]{40}$/.test(rawAddress)) throw new AnalysisError("Invalid address", "invalid_address");
-  const address = getAddress(rawAddress.toLowerCase());
-  const key = `${chainId}:${address.toLowerCase()}`;
+  return { chain, address: getAddress(rawAddress.toLowerCase()) };
+}
 
+/** 10-minute cache + in-flight de-duplication + hard deadline, keyed by `key` (prefix separates the tiers). */
+async function cachedWithDeadline<T>(key: string, compute: () => Promise<T>): Promise<T> {
   const hit = cache.get(key);
-  if (hit && Date.now() - hit.at < CACHE_TTL_MS) return hit.report;
+  if (hit && Date.now() - hit.at < CACHE_TTL_MS) return hit.value as T;
   const pending = inflight.get(key);
-  if (pending) return pending;
+  if (pending) return pending as Promise<T>;
 
   let timer: NodeJS.Timeout | undefined;
   const deadline = new Promise<never>((_, rej) => {
     timer = setTimeout(() => rej(new AnalysisError("Analysis exceeded the time budget", "timeout")), HARD_DEADLINE_MS);
   });
-  const p = Promise.race([analyzeUncached(chain, address), deadline])
-    .then((report) => {
+  const p = Promise.race([compute(), deadline])
+    .then((value) => {
       if (cache.size >= CACHE_MAX) cache.delete(cache.keys().next().value as string);
-      cache.set(key, { at: Date.now(), report });
-      return report;
+      cache.set(key, { at: Date.now(), value });
+      return value;
     })
     .finally(() => {
       clearTimeout(timer);
@@ -291,4 +306,78 @@ export async function analyzeContract(chainId: number, rawAddress: string): Prom
     });
   inflight.set(key, p);
   return p;
+}
+
+export async function analyzeContract(chainId: number, rawAddress: string): Promise<RiskReport> {
+  const { chain, address } = resolveTarget(chainId, rawAddress);
+  return cachedWithDeadline(`${chainId}:${address.toLowerCase()}`, () => analyzeUncached(chain, address));
+}
+
+// ---- Free tier: bytecode-only quick flags (no Blockscout, Sourcify or aderyn) ----
+
+export interface QuickFlags {
+  chainId: number;
+  address: string;
+  analyzedAt: string;
+  tier: "free";
+  isContract: true;
+  bytecodeSize: number;
+  proxy: RiskReport["proxy"];
+  erc20: RiskReport["erc20"];
+  opcodes: RiskReport["opcodes"];
+  selectors: { found: string[] };
+  partialScore: number;
+  partialLevel: RiskLevel;
+  flags: string[];
+  notes: string[];
+}
+
+/** On-chain-only analysis. The client is injectable so tests can run without network. */
+export async function quickFlagsUncached(chain: ChainInfo, address: Address, client: PublicClient = clientFor(chain)): Promise<QuickFlags> {
+  const { code, bytecodeSize, own } = await readContractCode(client, chain, address);
+  const [erc20, proxy] = await Promise.all([probeErc20(client, address), detectProxy(client, address, code, [])]);
+  const impl = proxy?.implementation ? await scanImplementation(client, proxy.implementation as Address) : undefined;
+
+  const found = matchSelectors(new Set<string>([...own.push4, ...(impl?.scan.push4 ?? [])]));
+  const logicSelfdestruct = impl ? impl.scan.hasSelfdestruct : own.hasSelfdestruct;
+  const { score, level, flags } = computeScore({
+    verified: null, // source lookup is paid-tier only: no source penalty
+    isProxy: proxy !== null,
+    ownerNotRenounced: erc20.owner !== null && erc20.ownerRenounced === false,
+    foundSelectors: found,
+    hasSelfdestruct: logicSelfdestruct,
+    currentlyPaused: erc20.paused === true,
+    aderynHigh: null,
+  });
+
+  const notes = [
+    "Free bytecode-only preview: source verification (Blockscout, Sourcify) and static analysis (aderyn) are only in the paid full report (MCP tool contract_risk_summary / GET /v1/risk/:chainId/:address).",
+    "partialScore never includes the +25 unverified-source penalty nor aderyn findings; the full report score can be higher.",
+    "Selector presence is a bytecode heuristic: a PUSH4 of the selector in the dispatcher suggests the function exists, it does not prove it is reachable, unrestricted or abusable.",
+    "Opcode flags come from a linear walk that skips PUSH data; SELFDESTRUCT/DELEGATECALL presence does not prove they are reachable.",
+  ];
+  if (proxy) notes.push("Proxy detected: selectors and opcodes cover the implementation as well. The upgrade admin can change behaviour at any time.");
+  if (proxy && !proxy.implementation) notes.push("Proxy detected but the implementation address could not be resolved.");
+
+  return {
+    chainId: chain.id,
+    address,
+    analyzedAt: new Date().toISOString(),
+    tier: "free",
+    isContract: true,
+    bytecodeSize,
+    proxy,
+    erc20,
+    opcodes: opcodeSummary(own, impl),
+    selectors: { found },
+    partialScore: score,
+    partialLevel: level,
+    flags: flags.filter((f) => f !== "source-verification-unknown"), // not meaningful in the free tier: the source is never queried
+    notes,
+  };
+}
+
+export async function quickFlags(chainId: number, rawAddress: string): Promise<QuickFlags> {
+  const { chain, address } = resolveTarget(chainId, rawAddress);
+  return cachedWithDeadline(`flags:${chainId}:${address.toLowerCase()}`, () => quickFlagsUncached(chain, address));
 }

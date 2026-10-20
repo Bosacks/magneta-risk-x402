@@ -1,7 +1,8 @@
 // Magneta Contract Risk: one express process serving
 //   GET  /health                          free
+//   GET  /v1/flags/:chainId/:address      free, bytecode-only quick flags (30 req/min per IP)
 //   GET  /v1/risk/:chainId/:address       paid ($0.02, x402 exact)
-//   POST /mcp                             Streamable HTTP MCP: paid tool contract_risk_summary + free tool supported_chains
+//   POST /mcp                             Streamable HTTP MCP: paid tool contract_risk_summary + free tools contract_quick_flags, supported_chains, scoring_rubric
 import express from "express";
 import { z } from "zod";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
@@ -14,7 +15,8 @@ import { DESCRIPTION, httpDiscovery, mcpDiscovery } from "./discovery.js";
 import { ADDRESS_RE, CHAINS, isSupportedChain } from "./chains.js";
 import { NETWORK, PORT, PRICE, PUBLIC_URL, need } from "./config.js";
 import { makeFacilitatorClient } from "./facilitator-client.js";
-import { AnalysisError, analyzeContract } from "./risk/analyze.js";
+import { AnalysisError, analyzeContract, quickFlags } from "./risk/analyze.js";
+import { createRateLimiter } from "./rate-limit.js";
 import { SCORING_RUBRIC } from "./risk/score.js";
 
 const network = NETWORK();
@@ -37,10 +39,18 @@ app.disable("x-powered-by");
 // Behind Caddy (loopback) the forwarded proto is https: the resource URL advertised to the facilitator must be https.
 app.set("trust proxy", "loopback");
 
-app.get("/health", (_req, res) => res.json({ status: "ok", network, price: PRICE, chains: Object.keys(CHAINS).map(Number) }));
+app.get("/health", (_req, res) =>
+  res.json({
+    status: "ok", network, price: PRICE, chains: Object.keys(CHAINS).map(Number),
+    freeRoutes: ["GET /health", "GET /v1/flags/:chainId/:address"],
+    paidRoutes: ["GET /v1/risk/:chainId/:address"],
+    freeTools: ["contract_quick_flags", "supported_chains", "scoring_rubric"],
+    paidTools: ["contract_risk_summary"],
+  }),
+);
 
-// Free validation BEFORE the payment middleware: bad input must never produce a 402.
-app.use("/v1/risk/:chainId/:address", (req, res, next) => {
+/** Shared free input validation: unsupported chain / bad address answer 400 before anything else. */
+const validateTarget: express.RequestHandler = (req, res, next) => {
   const chainId = Number(req.params.chainId);
   if (!Number.isInteger(chainId) || !isSupportedChain(chainId)) {
     res.status(400).json({ error: "unsupported_chain", supportedChains: Object.keys(CHAINS).map(Number) });
@@ -51,7 +61,35 @@ app.use("/v1/risk/:chainId/:address", (req, res, next) => {
     return;
   }
   next();
+};
+
+// FREE tier. Registered before the payment middleware, and its path never matches the paid route key
+// "GET /v1/risk/:chainId/:address", so x402 never applies to it. Rate limit only here, never on paid routes.
+const freeLimiter = createRateLimiter(30, 60_000);
+app.get("/v1/flags/:chainId/:address", (req, res, next) => {
+  const retryAfterSeconds = freeLimiter.hit(req.ip ?? "unknown");
+  if (retryAfterSeconds !== null) {
+    res.setHeader("Retry-After", String(retryAfterSeconds));
+    res.status(429).json({ error: "rate_limited", retryAfterSeconds });
+    return;
+  }
+  next();
+}, validateTarget, async (req, res) => {
+  try {
+    res.json(await quickFlags(Number(req.params.chainId), req.params.address));
+  } catch (e) {
+    if (e instanceof AnalysisError) {
+      const status = e.code === "not_a_contract" ? 422 : e.code === "timeout" ? 504 : 400;
+      res.status(status).json({ error: e.code, message: e.message });
+      return;
+    }
+    console.error("[flags] analysis failed:", e);
+    res.status(502).json({ error: "analysis_failed", message: "RPC failed; try again shortly." });
+  }
 });
+
+// Free validation BEFORE the payment middleware: bad input must never produce a 402.
+app.use("/v1/risk/:chainId/:address", validateTarget);
 
 app.use(
   paymentMiddleware(
@@ -104,7 +142,8 @@ function buildServer(): McpServer {
         `Analyze a deployed smart contract and return a deterministic risk report: 0-100 score with level (low/medium/high/critical), ` +
         `proxy/upgradeability, owner and pause state, risky selectors found in the bytecode (mint, blacklist, fee/tax setters, pause, upgrade), ` +
         `SELFDESTRUCT/DELEGATECALL opcodes, source verification (Blockscout, Sourcify) and aderyn static-analysis findings. ` +
-        `Use it before trading, bridging, approving or integrating a token or protocol contract; use supported_chains first if you are unsure the chain id is covered, ` +
+        `Use it before trading, bridging, approving or integrating a token or protocol contract; ` +
+        `Use contract_quick_flags first for a free bytecode-only preview when you are not sure the full report is worth paying for. Use supported_chains first if you are unsure the chain id is covered, ` +
         `and scoring_rubric to interpret the score. Paid: ${PRICE} in USDC on Base per call via x402. The first call answers with an x402 payment ` +
         `challenge; an x402-enabled client pays automatically and the same call then returns the report. Read-only, no side effects; failed analyses ` +
         `(not a contract, upstream data source down) are not charged; identical requests within 10 minutes return the cached report.`,
@@ -124,6 +163,31 @@ function buildServer(): McpServer {
         return { isError: true, content: [{ type: "text" as const, text: JSON.stringify({ error: message }) }] };
       }
     }),
+  );
+  server.registerTool(
+    "contract_quick_flags",
+    {
+      title: "Contract quick flags (free)",
+      description:
+        `Free, no payment: bytecode-only preview of a deployed smart contract. Covers proxy/upgradeability, ERC-20 probe (name, symbol, owner, paused), ` +
+        `risky selectors found in the bytecode (mint, blacklist, fee/tax setters, pause, upgrade), SELFDESTRUCT/DELEGATECALL opcodes, and a partialScore/partialLevel ` +
+        `computed from those on-chain signals only. Does NOT cover source verification (Blockscout, Sourcify) nor aderyn static analysis, so partialScore ` +
+        `can be lower than the real risk. contract_risk_summary (${PRICE} in USDC via x402) is the full report. Read-only, no side effects; an EOA is rejected; ` +
+        `identical requests within 10 minutes return the cached result; the HTTP twin GET /v1/flags/:chainId/:address is rate limited to 30 requests per minute per IP.`,
+      inputSchema: {
+        chainId: z.number().int().refine(isSupportedChain, "unsupported chainId; call supported_chains").describe(`EVM chain id, one of: ${Object.keys(CHAINS).join(", ")}`),
+        address: z.string().regex(ADDRESS_RE, "invalid address").describe("Contract address, 0x followed by 40 hex characters"),
+      },
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+    },
+    async (args: { chainId: number; address: string }) => {
+      try {
+        return { content: [{ type: "text" as const, text: JSON.stringify(await quickFlags(args.chainId, args.address)) }] };
+      } catch (e) {
+        const message = e instanceof AnalysisError ? e.message : "RPC failed";
+        return { isError: true, content: [{ type: "text" as const, text: JSON.stringify({ error: message }) }] };
+      }
+    },
   );
   server.registerTool(
     "supported_chains",
