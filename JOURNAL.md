@@ -1,5 +1,11 @@
 # Journal — magneta-risk-x402
 
+## 2026-10-21 — Solana comme 2e réseau de paiement
+- `SOLANA_PAY_TO` (adresse de Dominique 8chhny9…Pi72) → `ExactSvmScheme` enregistré sur `solana:5eykt4…` ; route HTTP et outil MCP acceptent USDC Base OU USDC Solana, même facilitateur Coinbase (payeur de frais Solana fourni par CDP)
+- Déployé ; 402 public vérifié avec 2 `accepts` ; `scripts/buy-once-svm.ts` + dépendance exacte `@solana/kit` 5.5.1
+- Acheteur de test Solana généré : AnyZQa2pDfcW2MC7xLgDQEFQLDEAW8J2MBVetnjU5yLN (clé dans `.env.local` du prototype) ; à financer en USDC Solana ; l'adresse de réception doit posséder un compte USDC (le SDK ne le crée pas)
+- Constat Bazaar (compteurs 30 j) : 3 payeurs distincts HTTP, 2 MCP → au moins un payeur externe ; solde 0,18 USDC = 9 règlements dont 8 de mes tests
+
 ## 2026-10-20 — Palier gratuit, skill d'agent, paquet client, vitrines
 - Paquet renommé `@magnetafinance/contract-risk` (le compte npm est `magnetafinance`, pas d'organisation) ; PUBLIÉ 0.1.0 le 20-10 19:40 UTC par Dominique (npm exige une passkey : créée via Chrome + Gestionnaire Google, `npm config set browser google-chrome` + navigateur système = Chrome)
 - Licence MIT ajoutée (décision Dominique, titulaire « Magneta Finance ») : racine + paquet npm, champ `license` MIT

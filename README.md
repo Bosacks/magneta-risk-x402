@@ -60,6 +60,13 @@ Chains without a Blockscout instance (BNB, Sonic, Mantle, Avalanche) rely on Sou
 excluded on purpose: EraVM bytecode defeats the opcode and selector heuristics. Compiler remappings from Blockscout or
 Sourcify are written to `remappings.txt` so aderyn can resolve `@openzeppelin/...`-style imports.
 
+## Payment networks
+
+Buyers pay in USDC on **Base** (`eip155:8453`). When `SOLANA_PAY_TO` is set, the same routes and tools also accept USDC on
+**Solana** mainnet (`solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp`), settled by the same Coinbase CDP facilitator, which
+pays the Solana fees. The Solana receiving address must already own a USDC token account (the SDK does not create it).
+`pnpm buy-once-svm` pays one call from a Solana keypair (`SVM_PRIVATE_KEY`, base58 64-byte secret key).
+
 ## Free tier, agent skill and client package
 
 - **Free preview**: `GET /v1/flags/:chainId/:address` and the MCP tool `contract_quick_flags` return the bytecode-only part of

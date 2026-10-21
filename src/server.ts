@@ -8,12 +8,13 @@ import { z } from "zod";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { ExactEvmScheme } from "@x402/evm/exact/server";
+import { ExactSvmScheme } from "@x402/svm/exact/server";
 import { paymentMiddleware, x402ResourceServer } from "@x402/express";
 import { createPaymentWrapper } from "@x402/mcp";
 import { bazaarResourceServerExtension } from "@x402/extensions/bazaar";
 import { DESCRIPTION, httpDiscovery, mcpDiscovery } from "./discovery.js";
 import { ADDRESS_RE, CHAINS, isSupportedChain } from "./chains.js";
-import { NETWORK, PORT, PRICE, PUBLIC_URL, need } from "./config.js";
+import { NETWORK, PORT, PRICE, PUBLIC_URL, SOLANA_NETWORK, SOLANA_PAY_TO, need } from "./config.js";
 import { makeFacilitatorClient } from "./facilitator-client.js";
 import { AnalysisError, analyzeContract, quickFlags } from "./risk/analyze.js";
 import { createRateLimiter } from "./rate-limit.js";
@@ -21,10 +22,13 @@ import { SCORING_RUBRIC } from "./risk/score.js";
 
 const network = NETWORK();
 const payTo = need("PAY_TO") as `0x${string}`;
+const solanaPayTo = SOLANA_PAY_TO();
+const solanaNetwork = SOLANA_NETWORK();
 
 // One resource server shared by the HTTP middleware and the MCP wrapper.
 const resourceServer = new x402ResourceServer(makeFacilitatorClient());
 resourceServer.register(network, new ExactEvmScheme());
+if (solanaPayTo) resourceServer.register(solanaNetwork, new ExactSvmScheme()); // USDC on Solana, settled by the same facilitator
 resourceServer.registerExtension(bazaarResourceServerExtension);
 await resourceServer.initialize(); // fetches /supported from the facilitator
 
@@ -41,7 +45,7 @@ app.set("trust proxy", "loopback");
 
 app.get("/health", (_req, res) =>
   res.json({
-    status: "ok", network, price: PRICE, chains: Object.keys(CHAINS).map(Number),
+    status: "ok", network, price: PRICE, paymentNetworks: [network, ...(solanaPayTo ? [solanaNetwork] : [])], chains: Object.keys(CHAINS).map(Number),
     freeRoutes: ["GET /health", "GET /v1/flags/:chainId/:address"],
     paidRoutes: ["GET /v1/risk/:chainId/:address"],
     freeTools: ["contract_quick_flags", "supported_chains", "scoring_rubric"],
@@ -95,7 +99,10 @@ app.use(
   paymentMiddleware(
     {
       "GET /v1/risk/:chainId/:address": {
-        accepts: [{ scheme: "exact", price: PRICE, network, payTo }],
+        accepts: [
+          { scheme: "exact", price: PRICE, network, payTo },
+          ...(solanaPayTo ? [{ scheme: "exact", price: PRICE, network: solanaNetwork, payTo: solanaPayTo }] : []),
+        ],
         description: DESCRIPTION,
         mimeType: "application/json",
         extensions: httpDiscovery(),
@@ -124,7 +131,10 @@ app.get("/v1/risk/:chainId/:address", async (req, res) => {
 });
 
 // ---- MCP ----
-const toolAccepts = await resourceServer.buildPaymentRequirements({ scheme: "exact", network, payTo, price: PRICE });
+const toolAccepts = [
+  ...(await resourceServer.buildPaymentRequirements({ scheme: "exact", network, payTo, price: PRICE })),
+  ...(solanaPayTo ? await resourceServer.buildPaymentRequirements({ scheme: "exact", network: solanaNetwork, payTo: solanaPayTo, price: PRICE }) : []),
+];
 const paid = createPaymentWrapper(resourceServer, {
   accepts: toolAccepts,
   resource: { url: `${PUBLIC_URL()}/mcp`, description: DESCRIPTION, mimeType: "application/json", serviceName: "Magneta Contract Risk", tags: ["security", "smart-contracts", "risk"] },

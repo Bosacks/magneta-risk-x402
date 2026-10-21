@@ -19,4 +19,8 @@ export const PORT = (): number => parseInt(env("PORT", "3011"), 10);
 export const NETWORK = (): `${string}:${string}` => env("X402_NETWORK", "eip155:84532") as `${string}:${string}`;
 export const PRICE = "$0.02";
 /** Public base URL of this service (https in production); used as the MCP resource URL for Bazaar discovery. */
+/** Optional second payment network: Solana mainnet (or devnet when X402_NETWORK is a testnet). Enabled when SOLANA_PAY_TO is set. */
+export const SOLANA_NETWORK = (): `${string}:${string}` =>
+  (NETWORK() === "eip155:8453" ? "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp" : "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1") as `${string}:${string}`;
+export const SOLANA_PAY_TO = (): string | undefined => process.env.SOLANA_PAY_TO || undefined;
 export const PUBLIC_URL = (): string => env("PUBLIC_URL", `http://127.0.0.1:${PORT()}`).replace(/\/$/, "");
