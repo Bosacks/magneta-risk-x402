@@ -3,7 +3,8 @@
 ## 2026-10-21 — Solana comme 2e réseau de paiement
 - `SOLANA_PAY_TO` (adresse de Dominique 8chhny9…Pi72) → `ExactSvmScheme` enregistré sur `solana:5eykt4…` ; route HTTP et outil MCP acceptent USDC Base OU USDC Solana, même facilitateur Coinbase (payeur de frais Solana fourni par CDP)
 - Déployé ; 402 public vérifié avec 2 `accepts` ; `scripts/buy-once-svm.ts` + dépendance exacte `@solana/kit` 5.5.1
-- Acheteur de test Solana généré : AnyZQa2pDfcW2MC7xLgDQEFQLDEAW8J2MBVetnjU5yLN (clé dans `.env.local` du prototype) ; à financer en USDC Solana ; l'adresse de réception doit posséder un compte USDC (le SDK ne le crée pas)
+- Acheteur de test Solana AnyZQa2pDfcW2MC7xLgDQEFQLDEAW8J2MBVetnjU5yLN financé par Dominique (1,51 USDC) ; compte USDC créé sur l'adresse de réception
+- 22-10 10:31 UTC : 1er achat réel en USDC Solana par l'URL publique, signature AuCoz3ba…, règlement par Coinbase (payeur de frais), Bazaar « processing »
 - Constat Bazaar (compteurs 30 j) : 3 payeurs distincts HTTP, 2 MCP → au moins un payeur externe ; solde 0,18 USDC = 9 règlements dont 8 de mes tests
 
 ## 2026-10-20 — Palier gratuit, skill d'agent, paquet client, vitrines
