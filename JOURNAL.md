@@ -6,7 +6,7 @@
 - Copie ClawHub de la skill (`skills/clawhub/`, frontmatter `metadata.openclaw`, approbation humaine avant paiement) ; essai à blanc du CLI 0.23.3 OK ; ClawHub impose MIT-0
 - Client 0.1.1 : description npm nettoyée (« UNLICENSED placeholder » publié par erreur en 0.1.0), README licence MIT ; à publier par Dominique
 - Fil X (7 messages) + Show HN rédigés dans `docs/launch/`
-- Identité ERC-8004 FRAPPÉE par Dominique : agentId 1017790, propriétaire 0xc7c8…821e, bloc 52985516, tx 0xacb66b83… ; agentURI saisi = JSON brut au lieu de l'URL → `setAgentURI` à signer (simulé OK) ; `registrations` rempli dans le fichier
+- Identité ERC-8004 FRAPPÉE par Dominique : agentId 1017790, propriétaire 0xc7c8…821e, bloc 52985516, tx 0xacb66b83… ; agentURI saisi = JSON brut au lieu de l'URL → corrigé par `setAgentURI` (tx 0x0f0fd0d7…, vérifié : tokenURI = URL https) ; `registrations` rempli dans le fichier
 - README : rsync de déploiement exclut désormais `.env.local`
 
 ## 2026-10-21 — Solana comme 2e réseau de paiement
