@@ -4,7 +4,7 @@
 - Fichier d'identité ERC-8004 + route `/.well-known/agent-registration.json` ; registre Base `0x8004A169…a432` vérifié on-chain (AgentIdentity 2.0.0) ; script `erc8004-register.ts` (calldata + `--check`) ; NON déployé (déploiement prod refusé à l'agent) ; inscription à signer par Dominique
 - Plugin `@magnetafinance/plugin-contract-risk` 0.1.0 (ElizaOS core 1.7.2, 2 actions, plafond par paiement, 11 tests) ; registre ElizaOS FERMÉ aux tiers depuis août 2026 → publication npm seulement
 - Copie ClawHub de la skill (`skills/clawhub/`, frontmatter `metadata.openclaw`, approbation humaine avant paiement) ; essai à blanc du CLI 0.23.3 OK ; ClawHub impose MIT-0
-- Client 0.1.1 : description npm nettoyée (« UNLICENSED placeholder » publié par erreur en 0.1.0), README licence MIT ; à publier par Dominique
+- Client 0.1.1 (description npm nettoyée, README licence MIT) et plugin ElizaOS 0.1.0 PUBLIÉS sur npm par Dominique ; installation propre depuis npm + chargement vérifiés (PIÈGE : session `npm login` expirée → 404 au PUT, pas 401)
 - Skill PUBLIÉE sur ClawHub par Dominique (CLI 0.20 → 0.23.3 : l'ancienne connexion par redirection est fermée) : https://clawhub.ai/Bosacks/skills/magneta-contract-risk, publique après 4 min, modération `clean` (revue LLM), licence MIT-0
 - Fil X (7 messages) + Show HN rédigés dans `docs/launch/`
 - Identité ERC-8004 FRAPPÉE par Dominique : agentId 1017790, propriétaire 0xc7c8…821e, bloc 52985516, tx 0xacb66b83… ; agentURI saisi = JSON brut au lieu de l'URL → corrigé par `setAgentURI` (tx 0x0f0fd0d7…, vérifié : tokenURI = URL https) ; `registrations` rempli dans le fichier
