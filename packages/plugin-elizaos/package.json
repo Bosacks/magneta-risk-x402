@@ -1,0 +1,63 @@
+{
+  "name": "@magnetafinance/plugin-contract-risk",
+  "version": "0.1.0",
+  "description": "ElizaOS plugin: smart-contract risk checks for agents. Free bytecode quick flags plus a paid ($0.02 USDC, x402) full report from Magneta Contract Risk.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist", "README.md", "LICENSE"],
+  "engines": { "node": ">=20" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bosacks/magneta-risk-x402.git",
+    "directory": "packages/plugin-elizaos"
+  },
+  "homepage": "https://x402.magneta.finance",
+  "keywords": ["elizaos", "elizaos-plugin", "plugin", "x402", "smart-contract", "risk", "security", "usdc", "base"],
+  "packageType": "plugin",
+  "agentConfig": {
+    "pluginType": "elizaos:plugin:1.0.0",
+    "pluginParameters": {
+      "CONTRACT_RISK_EVM_PRIVATE_KEY": {
+        "type": "string",
+        "description": "Hex private key of a dedicated wallet holding a little USDC on Base. Only needed for the paid CONTRACT_RISK_REPORT action. Use a throwaway wallet.",
+        "required": false,
+        "sensitive": true
+      },
+      "CONTRACT_RISK_MAX_USD": {
+        "type": "string",
+        "description": "Per-call spend cap in USD. The paid action refuses if the service price exceeds it.",
+        "required": false,
+        "default": "0.05"
+      },
+      "CONTRACT_RISK_BASE_URL": {
+        "type": "string",
+        "description": "Service base URL.",
+        "required": false,
+        "default": "https://x402.magneta.finance"
+      }
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test test/*.test.ts",
+    "prepublishOnly": "pnpm build"
+  },
+  "dependencies": {
+    "@elizaos/core": "1.7.2",
+    "@magnetafinance/contract-risk": "0.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "20.19.43",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3"
+  }
+}
