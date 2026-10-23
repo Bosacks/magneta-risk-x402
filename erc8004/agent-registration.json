@@ -1,0 +1,30 @@
+{
+  "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
+  "name": "Magneta Contract Risk",
+  "description": "Deterministic smart-contract risk report for any deployed contract on 20 EVM chains: 0-100 score, proxy/upgradeability, owner and pause state, mint/blacklist/fee selectors, SELFDESTRUCT, verified source and aderyn static analysis. Use before trading, approving, bridging or integrating a token or protocol. Read-only; failed analyses are not charged.",
+  "services": [
+    {
+      "name": "web",
+      "endpoint": "https://x402.magneta.finance"
+    },
+    {
+      "name": "MCP",
+      "endpoint": "https://x402.magneta.finance/mcp",
+      "version": "2025-06-18"
+    },
+    {
+      "name": "agentWallet",
+      "endpoint": "eip155:8453:0xc7c84858Bb060367d69c6f28b0F8333960c9821e"
+    },
+    {
+      "name": "agentWallet",
+      "endpoint": "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp:8chhny9NZmA51mEhtwa8qCJo6BcwgZNgdwDME7XKPi72"
+    }
+  ],
+  "x402Support": true,
+  "active": true,
+  "registrations": [],
+  "supportedTrust": [
+    "reputation"
+  ]
+}

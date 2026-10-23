@@ -3,6 +3,7 @@
 //   GET  /v1/flags/:chainId/:address      free, bytecode-only quick flags (30 req/min per IP)
 //   GET  /v1/risk/:chainId/:address       paid ($0.02, x402 exact)
 //   POST /mcp                             Streamable HTTP MCP: paid tool contract_risk_summary + free tools contract_quick_flags, supported_chains, scoring_rubric
+import { readFileSync } from "node:fs";
 import express from "express";
 import { z } from "zod";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
@@ -46,12 +47,21 @@ app.set("trust proxy", "loopback");
 app.get("/health", (_req, res) =>
   res.json({
     status: "ok", network, price: PRICE, paymentNetworks: [network, ...(solanaPayTo ? [solanaNetwork] : [])], chains: Object.keys(CHAINS).map(Number),
-    freeRoutes: ["GET /health", "GET /v1/flags/:chainId/:address"],
+    freeRoutes: ["GET /health", "GET /v1/flags/:chainId/:address", "GET /.well-known/agent-registration.json"],
     paidRoutes: ["GET /v1/risk/:chainId/:address"],
     freeTools: ["contract_quick_flags", "supported_chains", "scoring_rubric"],
     paidTools: ["contract_risk_summary"],
   }),
 );
+
+// ERC-8004 registration file, served as the agentURI and as the endpoint-domain verification file.
+// Resolved from the repo root (../erc8004 relative to both src/server.ts and dist/server.js), read once at startup.
+const agentRegistration = readFileSync(new URL("../erc8004/agent-registration.json", import.meta.url), "utf8");
+for (const path of ["/.well-known/agent-registration.json", "/agent-registration.json"]) {
+  app.get(path, (_req, res) => {
+    res.type("application/json").send(agentRegistration);
+  });
+}
 
 /** Shared free input validation: unsupported chain / bad address answer 400 before anything else. */
 const validateTarget: express.RequestHandler = (req, res, next) => {
