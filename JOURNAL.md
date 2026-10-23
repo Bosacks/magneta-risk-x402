@@ -1,5 +1,13 @@
 # Journal — magneta-risk-x402
 
+## 2026-10-23 — Identité ERC-8004, plugin ElizaOS, skill ClawHub, textes de lancement
+- Fichier d'identité ERC-8004 + route `/.well-known/agent-registration.json` ; registre Base `0x8004A169…a432` vérifié on-chain (AgentIdentity 2.0.0) ; script `erc8004-register.ts` (calldata + `--check`) ; NON déployé (déploiement prod refusé à l'agent) ; inscription à signer par Dominique
+- Plugin `@magnetafinance/plugin-contract-risk` 0.1.0 (ElizaOS core 1.7.2, 2 actions, plafond par paiement, 11 tests) ; registre ElizaOS FERMÉ aux tiers depuis août 2026 → publication npm seulement
+- Copie ClawHub de la skill (`skills/clawhub/`, frontmatter `metadata.openclaw`, approbation humaine avant paiement) ; essai à blanc du CLI 0.23.3 OK ; ClawHub impose MIT-0
+- Client 0.1.1 : description npm nettoyée (« UNLICENSED placeholder » publié par erreur en 0.1.0), README licence MIT ; à publier par Dominique
+- Fil X (7 messages) + Show HN rédigés dans `docs/launch/`
+- README : rsync de déploiement exclut désormais `.env.local`
+
 ## 2026-10-21 — Solana comme 2e réseau de paiement
 - `SOLANA_PAY_TO` (adresse de Dominique 8chhny9…Pi72) → `ExactSvmScheme` enregistré sur `solana:5eykt4…` ; route HTTP et outil MCP acceptent USDC Base OU USDC Solana, même facilitateur Coinbase (payeur de frais Solana fourni par CDP)
 - Déployé ; 402 public vérifié avec 2 `accepts` ; `scripts/buy-once-svm.ts` + dépendance exacte `@solana/kit` 5.5.1

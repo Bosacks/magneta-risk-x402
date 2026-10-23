@@ -4,7 +4,7 @@ Typed client and agent-tool adapters for [Magneta Contract Risk](https://x402.ma
 report (0-100 score, proxy/owner/mint/blacklist/fee flags, verified source, static analysis) on 20 EVM chains, paid per call
 with [x402](https://x402.org) (USDC on Base, $0.02, no ETH needed). Free bytecode-only preview included.
 
-> License: pending (package.json says `UNLICENSED` until one is chosen).
+License: MIT (Magneta Finance).
 
 ## Install
 

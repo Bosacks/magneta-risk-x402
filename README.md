@@ -79,6 +79,11 @@ pays the Solana fees. The Solana receiving address must already own a USDC token
   (`npm i @magnetafinance/contract-risk @x402/core@2.28.0 @x402/evm@2.28.0 @x402/fetch@2.28.0 viem@2.57.7`, source in
   [`packages/contract-risk-client`](packages/contract-risk-client)) wraps the x402 payment flow in a typed client and ships tool adapters for LangChain.js, the Vercel AI SDK and
   OpenAI/Anthropic function calling.
+- **ElizaOS plugin**: [`packages/plugin-elizaos`](packages/plugin-elizaos) (`@magnetafinance/plugin-contract-risk`) adds the
+  actions `CONTRACT_QUICK_FLAGS` (free) and `CONTRACT_RISK_REPORT` (paid, capped per payment) to an Eliza agent.
+- **ERC-8004 identity**: the registration file [erc8004/agent-registration.json](erc8004/agent-registration.json) is served at
+  `/.well-known/agent-registration.json`; `scripts/erc8004-register.ts` prints the `register(string)` call for the Base
+  IdentityRegistry `0x8004A169FB4a3325136EB29fA0ceB6D2e539a432`.
 
 ## Run
 
@@ -118,7 +123,7 @@ BUYER_PRIVATE_KEY=0x... pnpm buy-once-mcp    # same through the MCP tool
 
 ```bash
 pnpm install --ignore-scripts && pnpm build
-rsync -a --exclude node_modules ./ server:/srv/magneta/risk-x402/    # then pnpm install --prod --ignore-scripts there
+rsync -a --exclude node_modules --exclude .env.local --exclude 'scripts/logs' ./ server:/srv/magneta/risk-x402/    # never overwrite the server's .env.local; then pnpm install --prod --ignore-scripts there
 sudo cp deploy/magneta-risk-x402.service /etc/systemd/system/ && sudo systemctl enable --now magneta-risk-x402
 # add deploy/Caddyfile.snippet to the Caddyfile (vhost x402.magneta.finance -> 127.0.0.1:3011), reload Caddy
 ```
