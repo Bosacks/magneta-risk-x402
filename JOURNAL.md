@@ -5,6 +5,8 @@
 - Erreurs documentées (exigence de curation Coinbase) : `/openapi.json` (OpenAPI 3.1 : 400, 402, 422, 429, 502, 504), tableau README, description Bazaar 450 car. (≤ 500), description de l'outil MCP payant
 - Achat d'entretien 2×/mois (le Bazaar retire une fiche après 30 j sans règlement) : `scripts/keepalive-purchase.sh` + minuteur utilisateur `deploy/keepalive/` ; installation refusée à l'agent (persistance) → à installer par Dominique
 - Fil X à 8 messages (4 pièges) + 3 images 1600×900 avec textes alternatifs dans `docs/launch/images/`
+- Déployé + minuteur installé par Dominique ; 1er passage manuel du script d'entretien OK (tx 0x3031fb98…) + achat MCP (tx 0x1d5ac458…), 0,01 USDC chacun vérifiés on-chain ; fiche relue en 1 min (prix 10000, nouvelle description)
+- Recherche juste après : « contract risk score » 1er, « smart contract risk » 3e, « smart contract security » 6e (nouveau) ; absent de token rug check, honeypot, token risk report, rug pull check, token security check (qualité recalculée sous 6 h)
 - Recherche classement : documentation officielle vérifiée (pertinence + qualité 30 j recalculée toutes les 6 h ; curation éditoriale agentic.market) ; validateur officiel 26/26
 
 ## 2026-10-24 — Bazaar : indexé mais introuvable en recherche → nom, mots-clés, icône
