@@ -3,7 +3,7 @@ import { declareDiscoveryExtension } from "@x402/extensions/bazaar";
 import { CHAINS } from "./chains.js";
 
 export const DESCRIPTION =
-  "Deterministic smart-contract risk report for any deployed contract on 20 EVM chains: 0-100 score, proxy/upgradeability, owner and pause state, mint/blacklist/fee selectors, SELFDESTRUCT, verified source and aderyn static analysis. Use before trading, approving, bridging or integrating a token or protocol. Read-only; failed analyses are not charged.";
+  "Smart contract security and token risk check before you trade, approve, bridge or integrate: deterministic 0-100 risk score for any deployed contract on 20 EVM chains. Flags rug-pull levers (owner mint, blacklist, pause, adjustable fees, upgradeable proxy, ownership not renounced), SELFDESTRUCT/DELEGATECALL, verified source and aderyn static analysis. Read-only; failed analyses are not charged.";
 
 /** Bazaar service metadata on the `resource` object. Search ranks on it: without serviceName/tags/iconUrl the
  *  listing was indexed but never returned by /discovery/search (measured 2026-10-24, 4 queries, absent from all).
@@ -16,6 +16,42 @@ export const EXAMPLE_REPORT = {
   chainId: 8453, address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", analyzedAt: "2026-01-01T00:00:00.000Z",
   isContract: true, bytecodeSize: 1798, proxy: { type: "zeppelinos", implementation: "0x0000000000000000000000000000000000000001" },
   score: 65, level: "high", flags: ["upgradeable-proxy", "owner-not-renounced"], notes: [],
+};
+
+/** JSON Schema of the paid report (src/risk/analyze.ts RiskReport), published in both Bazaar declarations so an agent
+ *  knows what it buys before paying. Core fields are required; nested verification/analysis objects stay open. */
+const nullableString = { type: ["string", "null"] };
+export const REPORT_SCHEMA = {
+  type: "object",
+  properties: {
+    chainId: { type: "integer", description: "EVM chain id" },
+    address: { type: "string", description: "Contract address analysed" },
+    analyzedAt: { type: "string", format: "date-time" },
+    isContract: { type: "boolean" },
+    bytecodeSize: { type: "integer", description: "Runtime bytecode size in bytes" },
+    proxy: {
+      type: ["object", "null"],
+      description: "Detected proxy pattern (EIP-1967, EIP-1822, EIP-1167, zeppelinos) or null",
+      properties: { type: { type: "string" }, implementation: nullableString, admin: nullableString, beacon: nullableString },
+    },
+    erc20: {
+      type: "object",
+      properties: {
+        isLikelyErc20: { type: "boolean" }, name: nullableString, symbol: nullableString, decimals: { type: ["integer", "null"] },
+        totalSupply: nullableString, owner: nullableString, ownerRenounced: { type: ["boolean", "null"] }, paused: { type: ["boolean", "null"] },
+      },
+    },
+    opcodes: { type: "object", properties: { selfdestruct: { type: "boolean" }, delegatecall: { type: "boolean" } } },
+    selectors: { type: "object", description: "Risky function selectors found in the bytecode (mint, blacklist, pause, fees, upgrade)", properties: { found: { type: "array", items: { type: "string" } } } },
+    blockscout: { type: "object", description: "Source verification from Blockscout" },
+    sourcify: { type: "object", description: "Source verification from Sourcify (fallback)" },
+    aderyn: { type: "object", description: "aderyn static-analysis summary when verified source exists" },
+    score: { type: "integer", minimum: 0, maximum: 100, description: "Risk score, higher is riskier" },
+    level: { type: "string", enum: ["low", "medium", "high", "critical"] },
+    flags: { type: "array", items: { type: "string" }, description: "Rubric flags, e.g. upgradeable-proxy, owner-not-renounced, mint-function" },
+    notes: { type: "array", items: { type: "string" } },
+  },
+  required: ["chainId", "address", "analyzedAt", "isContract", "score", "level", "flags"],
 };
 
 const chainIds = Object.keys(CHAINS); // decimal strings: path params are strings on the wire
@@ -31,7 +67,7 @@ export const httpDiscovery = () =>
       },
       required: ["chainId", "address"],
     },
-    output: { example: EXAMPLE_REPORT },
+    output: { example: EXAMPLE_REPORT, schema: REPORT_SCHEMA },
   });
 
 /** Discovery declaration for the MCP tool contract_risk_summary. */
@@ -47,5 +83,5 @@ export const mcpDiscovery = () =>
       properties: { chainId: { type: "integer", enum: chainIds.map(Number) }, address: { type: "string", pattern: "^0x[0-9a-fA-F]{40}$" } },
       required: ["chainId", "address"],
     },
-    output: { example: EXAMPLE_REPORT },
+    output: { example: EXAMPLE_REPORT, schema: REPORT_SCHEMA },
   });

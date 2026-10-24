@@ -3,7 +3,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { isValidIconUrl, isValidServiceName, sanitizeTags, validateDiscoveryExtension, type DiscoveryExtension } from "@x402/extensions/bazaar";
-import { SERVICE_NAME, SERVICE_TAGS, httpDiscovery, iconUrl, mcpDiscovery } from "../src/discovery.js";
+import { EXAMPLE_REPORT, REPORT_SCHEMA, SERVICE_NAME, SERVICE_TAGS, httpDiscovery, iconUrl, mcpDiscovery } from "../src/discovery.js";
 
 test("HTTP discovery declaration validates with string path params", () => {
   const ext = structuredClone(httpDiscovery().bazaar) as DiscoveryExtension & { info: { input: Record<string, unknown> } };
@@ -29,4 +29,15 @@ test("service metadata survives the SDK sanitizers unchanged (search ranks on it
   assert.equal(isValidServiceName("x".repeat(33)), false);
   assert.equal(sanitizeTags([...SERVICE_TAGS, "sixth"])?.length, 5);
   assert.equal(isValidIconUrl("http://127.0.0.1/icon.png"), false);
+});
+
+test("both declarations publish the report schema, and the example carries every required field", () => {
+  for (const ext of [httpDiscovery().bazaar, mcpDiscovery().bazaar]) {
+    // The SDK embeds output.schema as the JSON Schema of output.example inside the extension's own schema.
+    const s = (ext as unknown as { schema: { properties: { output: { properties: { example: { properties: unknown; required: unknown } } } } } }).schema;
+    const example = s.properties.output.properties.example;
+    assert.deepEqual(example.properties, REPORT_SCHEMA.properties);
+    assert.deepEqual(example.required, REPORT_SCHEMA.required);
+  }
+  for (const k of REPORT_SCHEMA.required) assert.ok(k in EXAMPLE_REPORT, `example lacks ${k}`);
 });
