@@ -12,15 +12,31 @@
       "import": "./dist/index.js"
     }
   },
-  "files": ["dist", "README.md", "LICENSE"],
-  "engines": { "node": ">=20" },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Bosacks/magneta-risk-x402.git",
     "directory": "packages/plugin-elizaos"
   },
   "homepage": "https://x402.magneta.finance",
-  "keywords": ["elizaos", "elizaos-plugin", "plugin", "x402", "smart-contract", "risk", "security", "usdc", "base"],
+  "keywords": [
+    "elizaos",
+    "elizaos-plugin",
+    "plugin",
+    "x402",
+    "smart-contract",
+    "risk",
+    "security",
+    "usdc",
+    "base"
+  ],
   "packageType": "plugin",
   "agentConfig": {
     "pluginType": "elizaos:plugin:1.0.0",
@@ -59,5 +75,10 @@
     "@types/node": "20.19.43",
     "tsx": "4.23.15",
     "typescript": "5.9.3"
+  },
+  "pnpm": {
+    "overrides": {
+      "pdfjs-dist": "6.2.108"
+    }
   }
 }
