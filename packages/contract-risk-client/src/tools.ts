@@ -3,7 +3,7 @@ import type { ContractRiskClient } from "./client.js";
 const ADDRESS_PATTERN = "^0x[0-9a-fA-F]{40}$";
 export const TOOL_NAME = "contract_risk_summary";
 export const TOOL_DESCRIPTION =
-  "Paid ($0.02 USDC on Base via x402) deterministic risk report for a deployed smart contract on 20 EVM chains: 0-100 score, level, flags " +
+  "Paid ($0.01 USDC on Base via x402) deterministic risk report for a deployed smart contract on 20 EVM chains: 0-100 score, level, flags " +
   "(proxy/upgradeability, owner not renounced, mint/blacklist/fee selectors, SELFDESTRUCT, unverified source, aderyn findings). " +
   "Use before trading, approving, bridging or integrating a token or protocol. A triage signal, not an audit.";
 

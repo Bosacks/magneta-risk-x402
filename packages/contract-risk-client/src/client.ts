@@ -27,7 +27,7 @@ export interface ContractRiskClientOptions {
   account?: PayerAccount;
   /** Default https://x402.magneta.finance */
   baseUrl?: string;
-  /** Per-payment cap, x402 price string. Default "$0.05" (the call costs $0.02). */
+  /** Per-payment cap, x402 price string. Default "$0.05" (the call costs $0.01). */
   maxAmountPerPayment?: `$${string}`;
   /** Inject a fetch implementation (tests, proxies). Default: global fetch. */
   fetch?: typeof fetch;
@@ -41,7 +41,7 @@ export class ContractRiskError extends Error {
 }
 
 export interface ContractRiskClient {
-  /** Paid ($0.02). Full report; `_payment` carries the settlement receipt. 400/422/429/502 are not charged. */
+  /** Paid ($0.01). Full report; `_payment` carries the settlement receipt. 400/422/429/502 are not charged. */
   risk(chainId: number, address: string): Promise<RiskReport>;
   /** Free bytecode-only preview. */
   quickFlags(chainId: number, address: string): Promise<QuickFlags>;

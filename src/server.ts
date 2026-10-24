@@ -1,7 +1,7 @@
 // Magneta Contract Risk: one express process serving
 //   GET  /health                          free
 //   GET  /v1/flags/:chainId/:address      free, bytecode-only quick flags (30 req/min per IP)
-//   GET  /v1/risk/:chainId/:address       paid ($0.02, x402 exact)
+//   GET  /v1/risk/:chainId/:address       paid ($0.01, x402 exact)
 //   POST /mcp                             Streamable HTTP MCP: paid tool contract_risk_summary + free tools contract_quick_flags, supported_chains, scoring_rubric
 import { readFileSync } from "node:fs";
 import express from "express";
@@ -18,6 +18,7 @@ import { ADDRESS_RE, CHAINS, isSupportedChain } from "./chains.js";
 import { NETWORK, PORT, PRICE, PUBLIC_URL, SOLANA_NETWORK, SOLANA_PAY_TO, need } from "./config.js";
 import { makeFacilitatorClient } from "./facilitator-client.js";
 import { AnalysisError, analyzeContract, quickFlags } from "./risk/analyze.js";
+import { buildOpenApi } from "./openapi.js";
 import { createRateLimiter } from "./rate-limit.js";
 import { SCORING_RUBRIC } from "./risk/score.js";
 
@@ -47,12 +48,24 @@ app.set("trust proxy", "loopback");
 app.get("/health", (_req, res) =>
   res.json({
     status: "ok", network, price: PRICE, paymentNetworks: [network, ...(solanaPayTo ? [solanaNetwork] : [])], chains: Object.keys(CHAINS).map(Number),
-    freeRoutes: ["GET /health", "GET /v1/flags/:chainId/:address", "GET /.well-known/agent-registration.json", "GET /icon.png"],
+    freeRoutes: ["GET /health", "GET /v1/flags/:chainId/:address", "GET /openapi.json", "GET /.well-known/agent-registration.json", "GET /icon.png"],
     paidRoutes: ["GET /v1/risk/:chainId/:address"],
     freeTools: ["contract_quick_flags", "supported_chains", "scoring_rubric"],
     paidTools: ["contract_risk_summary"],
   }),
 );
+
+// OpenAPI 3.1 document (free, registered before the payment middleware). Built once at startup.
+const openApiDoc = buildOpenApi({
+  publicUrl: PUBLIC_URL(),
+  networks: [
+    { network, asset: "USDC" },
+    ...(solanaPayTo ? [{ network: solanaNetwork, asset: "USDC" }] : []),
+  ],
+});
+app.get("/openapi.json", (_req, res) => {
+  res.set("Cache-Control", "public, max-age=300").json(openApiDoc);
+});
 
 // ERC-8004 registration file, served as the agentURI and as the endpoint-domain verification file.
 // Resolved from the repo root (../erc8004 relative to both src/server.ts and dist/server.js), read once at startup.
@@ -162,7 +175,7 @@ const paid = createPaymentWrapper(resourceServer, {
 
 /** Builds a fresh MCP server (stateless mode: one server + transport per HTTP request). */
 function buildServer(): McpServer {
-  const server = new McpServer({ name: "Magneta Contract Risk", version: "0.1.1" });
+  const server = new McpServer({ name: "Magneta Contract Risk", version: "0.1.2" });
   server.registerTool(
     "contract_risk_summary",
     {
@@ -174,8 +187,9 @@ function buildServer(): McpServer {
         `Use it before trading, bridging, approving or integrating a token or protocol contract; ` +
         `Use contract_quick_flags first for a free bytecode-only preview when you are not sure the full report is worth paying for. Use supported_chains first if you are unsure the chain id is covered, ` +
         `and scoring_rubric to interpret the score. Paid: ${PRICE} in USDC on Base per call via x402. The first call answers with an x402 payment ` +
-        `challenge; an x402-enabled client pays automatically and the same call then returns the report. Read-only, no side effects; failed analyses ` +
-        `(not a contract, upstream data source down) are not charged; identical requests within 10 minutes return the cached report.`,
+        `challenge; an x402-enabled client pays automatically and the same call then returns the report. Read-only, no side effects. Error cases ` +
+        `(unsupported chain, invalid address, address is not a contract, upstream data source failure or timeout) return an isError result with an error message ` +
+        `and are not charged; identical requests within 10 minutes return the cached report.`,
       inputSchema: {
         chainId: z.number().int().refine(isSupportedChain, "unsupported chainId; call supported_chains").describe(`EVM chain id, one of: ${Object.keys(CHAINS).join(", ")}`),
         address: z.string().regex(ADDRESS_RE, "invalid address").describe("Contract address, 0x followed by 40 hex characters (an EOA is rejected without charge)"),

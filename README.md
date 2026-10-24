@@ -5,10 +5,11 @@ A small production-oriented service that sells an **on-chain smart-contract risk
 
 | Surface | Route | Price |
 |---|---|---|
-| HTTP | `GET /v1/risk/:chainId/:address` | **$0.02** |
-| MCP (Streamable HTTP, stateless) | `POST /mcp`, tool `contract_risk_summary(chainId, address)` | **$0.02** |
+| HTTP | `GET /v1/risk/:chainId/:address` | **$0.01** |
+| MCP (Streamable HTTP, stateless) | `POST /mcp`, tool `contract_risk_summary(chainId, address)` | **$0.01** |
 | MCP | tool `supported_chains` | free |
 | Health | `GET /health` | free |
+| OpenAPI | `GET /openapi.json` | free |
 
 Both paid surfaces call the same `analyzeContract(chainId, address)` in `src/risk/analyze.ts`. The analysis is deterministic and
 uses public data only (RPC, Blockscout, Sourcify, a local aderyn binary). **No LLM, no API key for analysis.**
@@ -59,6 +60,22 @@ Blast (81457), Scroll (534352). Testnets: Base Sepolia (84532), Sepolia (1115511
 Chains without a Blockscout instance (BNB, Sonic, Mantle, Avalanche) rely on Sourcify for verified sources. zkSync Era is
 excluded on purpose: EraVM bytecode defeats the opcode and selector heuristics. Compiler remappings from Blockscout or
 Sourcify are written to `remappings.txt` so aderyn can resolve `@openzeppelin/...`-style imports.
+
+## Errors
+
+Machine-readable description: `GET /openapi.json` (OpenAPI 3.1, free). Error bodies are JSON with an `error` code.
+
+| Status | `error` | When | Route | Charged? |
+|---|---|---|---|---|
+| 400 | `unsupported_chain` | `chainId` is not in the supported list (body carries `supportedChains`) | both | no (answered before the 402 challenge) |
+| 400 | `invalid_address` | `address` is not `0x` + 40 hex characters | both | no (answered before the 402 challenge) |
+| 402 | n/a | Payment required: base64 x402 challenge in the `PAYMENT-REQUIRED` header (USDC, `exact` scheme) | paid | no, it is the price quote |
+| 422 | `not_a_contract` | the address has no contract code on that chain (EOA) | both | no |
+| 429 | `rate_limited` | more than 30 requests per minute from one IP (`retryAfterSeconds`, `Retry-After` header) | free `/v1/flags` only | n/a (free) |
+| 502 | `analysis_failed` | an upstream data source (RPC, explorer) failed | both | no |
+| 504 | `timeout` | the analysis exceeded its 24 s budget | both | no |
+
+Only a `200` response is settled. Over MCP, the same failures return an `isError` result with an `error` message and are not charged.
 
 ## Payment networks
 
@@ -141,7 +158,7 @@ first real paid call through a Bazaar-enabled facilitator (CDP). The public x402
 
 ## Production status (2026-10-16)
 
-Live at https://x402.magneta.finance on Base mainnet (`eip155:8453`), Coinbase CDP facilitator, $0.02 per call, listed in the
+Live at https://x402.magneta.finance on Base mainnet (`eip155:8453`), Coinbase CDP facilitator, $0.01 per call, listed in the
 x402 Bazaar (route `/v1/risk/:chainId/:address`). Buyers need USDC on Base and no ETH. The facilitator rejects payments where
 the payer equals `payTo` (`self_send_not_allowed`).
 

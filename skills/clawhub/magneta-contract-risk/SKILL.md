@@ -1,7 +1,7 @@
 ---
 name: magneta-contract-risk
-description: Check a smart contract's risk before trading, approving, bridging or integrating it, using the Magneta Contract Risk x402 service (0-100 score, proxy/owner/mint/blacklist/fee flags, verified-source and static-analysis findings, 20 EVM chains). Free bytecode-only quick flags need only curl; the full report costs $0.02 USDC on Base per call and is paid only with explicit user approval. Use when about to sign a transaction involving an unfamiliar token or contract, or when asked whether a token looks like a rug or honeypot. Not an audit.
-version: 0.1.0
+description: Check a smart contract's risk before trading, approving, bridging or integrating it, using the Magneta Contract Risk x402 service (0-100 score, proxy/owner/mint/blacklist/fee flags, verified-source and static-analysis findings, 20 EVM chains). Free bytecode-only quick flags need only curl; the full report costs $0.01 USDC on Base per call and is paid only with explicit user approval. Use when about to sign a transaction involving an unfamiliar token or contract, or when asked whether a token looks like a rug or honeypot. Not an audit.
+version: 0.1.1
 metadata:
   openclaw:
     emoji: "\U0001F6E1"
@@ -42,19 +42,19 @@ Do not use it for externally-owned accounts (the API returns 422 `not_a_contract
 
 - **Free tier first, no credentials.** `curl -s https://x402.magneta.finance/v1/flags/<chainId>/<address>` needs no key, no wallet, no account. Most go/no-go decisions can stop here.
 - **This skill never asks for a key in chat and never stores one.** The only secret is the optional `BUYER_PRIVATE_KEY` environment variable, read by the x402 client code you run. Do not paste a key into the conversation, a file, a command line argument or a log. Never print, echo or log it (log the settlement tx hash instead).
-- **No autonomous spending.** Before the first paid call of a session, tell the user the price ($0.02 USDC on Base, one report) and get an explicit yes. Do not loop, retry-buy or batch paid calls without a fresh yes. At most one paid report per contract per decision.
-- **Hard spending cap in code.** Every paid client must set a per-payment cap of `$0.05` (see Spend control). The service price is fixed at $0.02; refuse any 402 asking for more.
+- **No autonomous spending.** Before the first paid call of a session, tell the user the price ($0.01 USDC on Base, one report) and get an explicit yes. Do not loop, retry-buy or batch paid calls without a fresh yes. At most one paid report per contract per decision.
+- **Hard spending cap in code.** Every paid client must set a per-payment cap of `$0.05` (see Spend control). The service price is fixed at $0.01; refuse any 402 asking for more.
 - **Dedicated wallet only.** Use a throwaway buyer wallet funded with a few dollars of USDC on Base, never a treasury or personal wallet.
 - **Nothing is executed on your behalf.** The skill only issues HTTPS GETs to `x402.magneta.finance` (and an MCP endpoint on the same host). It installs nothing by itself; the optional npm packages in the examples must be installed by you, with exact versions, using `--ignore-scripts`.
-- **External cost disclosed:** the paid report costs $0.02 USDC per call, settled on-chain via x402 (EIP-3009 `exact`). ClawHub itself is free; this charge is for the external Magneta service only.
+- **External cost disclosed:** the paid report costs $0.01 USDC per call, settled on-chain via x402 (EIP-3009 `exact`). ClawHub itself is free; this charge is for the external Magneta service only.
 
 ## Endpoints
 
 | Surface | Route / tool | Price |
 |---|---|---|
-| HTTP | `GET /v1/risk/:chainId/:address` | $0.02 USDC, Base mainnet (`eip155:8453`), x402 `exact` |
+| HTTP | `GET /v1/risk/:chainId/:address` | $0.01 USDC, Base mainnet (`eip155:8453`), x402 `exact` |
 | HTTP | `GET /v1/flags/:chainId/:address` (bytecode-only preview) | free |
-| MCP `https://x402.magneta.finance/mcp` | `contract_risk_summary {chainId:int, address:string}` | $0.02 |
+| MCP `https://x402.magneta.finance/mcp` | `contract_risk_summary {chainId:int, address:string}` | $0.01 |
 | MCP | `contract_quick_flags`, `supported_chains`, `scoring_rubric` | free |
 
 Chains (20): mainnets 1, 10, 56, 100, 130, 137, 146, 480, 5000, 8453, 42161, 42220, 43114, 59144, 81457, 534352;
@@ -64,7 +64,7 @@ testnets 84532, 11155111, 11155420, 421614. The payment is always in USDC on Bas
 
 0. Confirm the target chain id and address with the user (never guess an address).
 1. Free first: call `/v1/flags/:chainId/:address` (or `contract_quick_flags`). If it already shows a blocking flag for your use case, stop; no need to pay.
-2. If the decision still depends on source verification, owner state or static analysis, ask the user to approve the $0.02 report, then buy it.
+2. If the decision still depends on source verification, owner state or static analysis, ask the user to approve the $0.01 report, then buy it.
 3. Read the report (below), apply your own threshold, and tell the user which flags drove the decision.
 4. A report is cached server-side for 10 minutes per chain+address; the payment still happens on each call, so do not re-buy the same pair in a loop.
 
@@ -164,7 +164,7 @@ Caveats (from the service's own rubric, also served by `scoring_rubric`):
 
 ## Spend control
 
-- Cap every payment at `$0.05` (the call costs $0.02): `setSpendControls({ maxAmountPerPayment: "$0.05" })` or the `onPaymentRequested` check above.
+- Cap every payment at `$0.05` (the call costs $0.01): `setSpendControls({ maxAmountPerPayment: "$0.05" })` or the `onPaymentRequested` check above.
 - Use a dedicated buyer wallet with a small USDC balance; never reuse a treasury key. Never print or log the key.
 - The service's `payTo` address cannot be the payer (the facilitator rejects `self_send_not_allowed`).
 - Budget per task: free preview first, at most one paid report per contract per decision.
@@ -180,4 +180,4 @@ Caveats (from the service's own rubric, also served by `scoring_rubric`):
 | 504 | analysis timeout (24 s hard deadline) |
 
 x402 settles only successful responses, so every non-2xx above costs nothing. MCP failures come back as `isError: true` and are not settled either.
-A `402` that survives the client wrapper usually means: wallet has no USDC on Base, the cap is below $0.02, or the scheme network is not `eip155:8453`/`eip155:*`.
+A `402` that survives the client wrapper usually means: wallet has no USDC on Base, the cap is below $0.01, or the scheme network is not `eip155:8453`/`eip155:*`.

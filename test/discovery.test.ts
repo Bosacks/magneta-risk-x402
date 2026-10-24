@@ -41,3 +41,11 @@ test("both declarations publish the report schema, and the example carries every
   }
   for (const k of REPORT_SCHEMA.required) assert.ok(k in EXAMPLE_REPORT, `example lacks ${k}`);
 });
+
+test("DESCRIPTION stays within the 500-character facilitator limit and names the error cases", async () => {
+  const { DESCRIPTION } = await import("../src/discovery.js");
+  assert.ok(DESCRIPTION.length <= 500, `DESCRIPTION is ${DESCRIPTION.length} chars`);
+  assert.match(DESCRIPTION, /400/);
+  assert.match(DESCRIPTION, /422/);
+  assert.match(DESCRIPTION, /not charged/);
+});

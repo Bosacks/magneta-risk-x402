@@ -2,7 +2,7 @@
 
 Typed client and agent-tool adapters for [Magneta Contract Risk](https://x402.magneta.finance): a deterministic smart-contract risk
 report (0-100 score, proxy/owner/mint/blacklist/fee flags, verified source, static analysis) on 20 EVM chains, paid per call
-with [x402](https://x402.org) (USDC on Base, $0.02, no ETH needed). Free bytecode-only preview included.
+with [x402](https://x402.org) (USDC on Base, $0.01, no ETH needed). Free bytecode-only preview included.
 
 License: MIT (Magneta Finance).
 
@@ -23,7 +23,7 @@ const risk = createContractRiskClient({
 });
 
 const preview = await risk.quickFlags(8453, "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"); // free
-const report = await risk.risk(8453, "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913");        // $0.02
+const report = await risk.risk(8453, "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913");        // $0.01
 console.log(report.score, report.level, report.flags, report._payment?.transaction);
 ```
 

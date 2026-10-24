@@ -6,7 +6,7 @@ ElizaOS plugin that lets an agent check a smart contract before it trades, appro
 | Action | Cost | What it does |
 |---|---|---|
 | `CONTRACT_QUICK_FLAGS` | **free** | Bytecode-only red flags (proxy, owner, pause, mint/blacklist/fee selectors, SELFDESTRUCT) and a partial score. Rate limit: 30 requests/minute/IP. |
-| `CONTRACT_RISK_REPORT` | **$0.02 USDC per call** (x402, Base) | Full report: 0-100 score, verdict, findings including source verification and static analysis. |
+| `CONTRACT_RISK_REPORT` | **$0.01 USDC per call** (x402, Base) | Full report: 0-100 score, verdict, findings including source verification and static analysis. |
 
 The score is a triage signal, not an audit.
 
@@ -38,7 +38,7 @@ export const character = {
 | Setting | Required | Default | Purpose |
 |---|---|---|---|
 | `CONTRACT_RISK_EVM_PRIVATE_KEY` | only for the paid action | none | Hex private key of a wallet holding USDC on Base. No ETH is needed (EIP-3009 signature, the facilitator pays gas). Without it `CONTRACT_RISK_REPORT` is never offered. Use a dedicated wallet funded with a few cents to a few dollars. |
-| `CONTRACT_RISK_MAX_USD` | no | `0.05` | Per-call spend cap. If the service asks for more, the action refuses and nothing is signed. The current price is $0.02. |
+| `CONTRACT_RISK_MAX_USD` | no | `0.05` | Per-call spend cap. If the service asks for more, the action refuses and nothing is signed. The current price is $0.01. |
 | `CONTRACT_RISK_BASE_URL` | no | `https://x402.magneta.finance` | Service base URL. |
 
 ## Usage
@@ -48,12 +48,12 @@ Recognised names: ethereum, base, arbitrum, optimism, polygon, bsc, avalanche (p
 or `chain 137` / `eip155:42161`. With no chain named, Base (8453) is assumed and the reply says so.
 Other supported chain ids (Gnosis, Linea, Scroll, Celo, ...) work through the numeric form.
 
-Examples: "quick check 0x8335... on ethereum" (free), "buy the full risk report for 0x8335... on base" ($0.02).
+Examples: "quick check 0x8335... on ethereum" (free), "buy the full risk report for 0x8335... on base" ($0.01).
 
 ## Costs and safety
 
 - Free action: no wallet, no payment.
-- Paid action: exactly one $0.02 USDC payment per successful report; failed analyses (not a contract, upstream error, timeout) return an error status and are not charged.
+- Paid action: exactly one $0.01 USDC payment per successful report; failed analyses (not a contract, upstream error, timeout) return an error status and are not charged.
 - The key never leaves the process except as an EIP-3009 signature. Keep `CONTRACT_RISK_MAX_USD` low.
 
 ## Links

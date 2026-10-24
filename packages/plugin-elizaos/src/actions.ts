@@ -20,7 +20,7 @@ export function formatFlags(f: QuickFlags, chainDefaulted: boolean): string {
     `Quick flags for ${f.address} on chain ${f.chainId}${chainDefaulted ? " (no chain named, assumed Base)" : ""}:`,
     `Partial risk score: ${f.partialScore}/100 (${f.partialLevel}), bytecode only.`,
     f.flags.length ? `Flags: ${f.flags.join(", ")}.` : "Flags: none raised.",
-    "This free preview excludes source verification and static-analysis findings; the full report (CONTRACT_RISK_REPORT, $0.02) includes them.",
+    "This free preview excludes source verification and static-analysis findings; the full report (CONTRACT_RISK_REPORT, $0.01) includes them.",
   ];
   return lines.join("\n");
 }
@@ -35,7 +35,7 @@ export function formatReport(r: RiskReport): string {
   if (r.aderyn?.ran && r.aderyn.top?.length) {
     lines.push(`Static analysis: ${r.aderyn.top.slice(0, 3).map((t) => `${t.title} (${t.severity})`).join("; ")}.`);
   }
-  if (r._payment?.transaction) lines.push(`Paid $0.02 USDC, tx ${r._payment.transaction}.`);
+  if (r._payment?.transaction) lines.push(`Paid $0.01 USDC, tx ${r._payment.transaction}.`);
   lines.push("A triage signal, not an audit.");
   return lines.join("\n");
 }
@@ -87,7 +87,7 @@ export const riskReportAction: Action = {
   name: "CONTRACT_RISK_REPORT",
   similes: ["FULL_CONTRACT_RISK_REPORT", "BUY_RISK_REPORT", "AUDIT_CONTRACT_RISK", "CONTRACT_RISK_SCORE"],
   description:
-    "Paid ($0.02 USDC via x402) full risk report for a smart contract: 0-100 score, verdict, findings including source verification and static analysis. Only use when the user explicitly wants the full/deep report; prefer CONTRACT_QUICK_FLAGS for a free first look.",
+    "Paid ($0.01 USDC via x402) full risk report for a smart contract: 0-100 score, verdict, findings including source verification and static analysis. Only use when the user explicitly wants the full/deep report; prefer CONTRACT_QUICK_FLAGS for a free first look.",
   validate: async (runtime: IAgentRuntime, message: Memory) =>
     getPrivateKey(runtime) !== undefined && extract(message.content?.text ?? "").address !== null,
   handler: async (runtime, message, _state, _options, callback): Promise<ActionResult> => {
@@ -139,7 +139,7 @@ export const riskReportAction: Action = {
   examples: [
     [
       { name: "{{user1}}", content: { text: "Get me the full risk report for 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913 on Base" } },
-      { name: "{{agent}}", content: { text: "Buying the full report ($0.02 USDC).", actions: ["CONTRACT_RISK_REPORT"] } },
+      { name: "{{agent}}", content: { text: "Buying the full report ($0.01 USDC).", actions: ["CONTRACT_RISK_REPORT"] } },
     ],
   ],
 };

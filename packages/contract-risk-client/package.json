@@ -1,8 +1,8 @@
 {
   "name": "@magnetafinance/contract-risk",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": false,
-  "description": "Client for the Magneta Contract Risk x402 service: smart-contract risk reports for AI agents on 20 EVM chains ($0.02 USDC per report, free quick flags), plus LangChain.js / Vercel AI SDK tool adapters.",
+  "description": "Client for the Magneta Contract Risk x402 service: smart-contract risk reports for AI agents on 20 EVM chains ($0.01 USDC per report, free quick flags), plus LangChain.js / Vercel AI SDK tool adapters.",
   "license": "MIT",
   "type": "module",
   "main": "./dist/index.js",

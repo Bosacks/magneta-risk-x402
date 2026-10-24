@@ -2,8 +2,8 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.Bosacks/magneta-contract-risk",
   "title": "Magneta Contract Risk",
-  "description": "Smart-contract risk reports for AI agents on 20 EVM chains, paid per call via x402 ($0.02 USDC).",
-  "version": "0.1.1",
+  "description": "Smart-contract risk reports for AI agents on 20 EVM chains, paid per call via x402 ($0.01 USDC).",
+  "version": "0.1.2",
   "websiteUrl": "https://x402.magneta.finance",
   "repository": {
     "url": "https://github.com/Bosacks/magneta-risk-x402",

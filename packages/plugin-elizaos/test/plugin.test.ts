@@ -92,7 +92,7 @@ test("paid handler: refuses when the 402 price exceeds CONTRACT_RISK_MAX_USD", a
     x402Version: 2,
     resource: { url: `http://x.test/v1/risk/8453/${ADDR}` },
     accepts: [{
-      scheme: "exact", network: "eip155:8453", amount: "20000", // $0.02 in USDC atomic units
+      scheme: "exact", network: "eip155:8453", amount: "10000", // $0.01 in USDC atomic units
       asset: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", payTo: "0x" + "22".repeat(20),
       maxTimeoutSeconds: 60, extra: { name: "USD Coin", version: "2" },
     }],
@@ -105,10 +105,10 @@ test("paid handler: refuses when the 402 price exceeds CONTRACT_RISK_MAX_USD", a
   }) as typeof fetch;
   const { out, cb } = collect();
   const r = await riskReportAction.handler(
-    rt({ CONTRACT_RISK_EVM_PRIVATE_KEY: KEY, CONTRACT_RISK_MAX_USD: "0.01" }), msg(`full report ${ADDR}`), undefined, undefined, cb);
+    rt({ CONTRACT_RISK_EVM_PRIVATE_KEY: KEY, CONTRACT_RISK_MAX_USD: "0.005" }), msg(`full report ${ADDR}`), undefined, undefined, cb);
   assert.equal(r?.success, false);
   assert.equal(r?.error, "over_cap");
-  assert.match(out[0], /exceeds my spend cap of \$0\.01/);
+  assert.match(out[0], /exceeds my spend cap of \$0\.005/);
   assert.equal(calls, 1, "no paid retry after refusal");
   deps.fetch = real;
 });

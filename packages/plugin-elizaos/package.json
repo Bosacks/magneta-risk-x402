@@ -1,7 +1,7 @@
 {
   "name": "@magnetafinance/plugin-contract-risk",
-  "version": "0.1.0",
-  "description": "ElizaOS plugin: smart-contract risk checks for agents. Free bytecode quick flags plus a paid ($0.02 USDC, x402) full report from Magneta Contract Risk.",
+  "version": "0.1.1",
+  "description": "ElizaOS plugin: smart-contract risk checks for agents. Free bytecode quick flags plus a paid ($0.01 USDC, x402) full report from Magneta Contract Risk.",
   "license": "MIT",
   "type": "module",
   "main": "./dist/index.js",

@@ -1,6 +1,6 @@
 ---
 name: magneta-contract-risk
-description: Check a smart contract's risk before trading, approving, bridging or integrating it, using the Magneta Contract Risk x402 service (0-100 score, proxy/owner/mint/blacklist/fee flags, verified-source and static-analysis findings, 20 EVM chains, $0.02 USDC on Base per report, free bytecode-only preview). Use when the user or agent is about to sign a transaction involving an unfamiliar token or contract, asks whether a token looks like a rug or honeypot, wants a pre-signature safety check, or wants code that buys such a report over HTTP, MCP or a Coinbase Agentic Wallet. Not an audit.
+description: Check a smart contract's risk before trading, approving, bridging or integrating it, using the Magneta Contract Risk x402 service (0-100 score, proxy/owner/mint/blacklist/fee flags, verified-source and static-analysis findings, 20 EVM chains, $0.01 USDC on Base per report, free bytecode-only preview). Use when the user or agent is about to sign a transaction involving an unfamiliar token or contract, asks whether a token looks like a rug or honeypot, wants a pre-signature safety check, or wants code that buys such a report over HTTP, MCP or a Coinbase Agentic Wallet. Not an audit.
 compatibility: Node.js >= 20. Paid calls need a wallet holding USDC on Base mainnet (no ETH needed). Free tools need nothing.
 metadata:
   author: magneta.finance
@@ -24,9 +24,9 @@ Do not use it for externally-owned accounts (the API returns 422 `not_a_contract
 
 | Surface | Route / tool | Price |
 |---|---|---|
-| HTTP | `GET /v1/risk/:chainId/:address` | $0.02 USDC, Base mainnet (`eip155:8453`), x402 `exact` |
+| HTTP | `GET /v1/risk/:chainId/:address` | $0.01 USDC, Base mainnet (`eip155:8453`), x402 `exact` |
 | HTTP | `GET /v1/flags/:chainId/:address` (bytecode-only preview) | free |
-| MCP `https://x402.magneta.finance/mcp` | `contract_risk_summary {chainId:int, address:string}` | $0.02 |
+| MCP `https://x402.magneta.finance/mcp` | `contract_risk_summary {chainId:int, address:string}` | $0.01 |
 | MCP | `contract_quick_flags`, `supported_chains`, `scoring_rubric` | free |
 
 Chains (20): mainnets 1, 10, 56, 100, 130, 137, 146, 480, 5000, 8453, 42161, 42220, 43114, 59144, 81457, 534352;
@@ -135,7 +135,7 @@ Caveats (from the service's own rubric, also served by `scoring_rubric`):
 
 ## Spend control
 
-- Cap every payment at `$0.05` (the call costs $0.02): `setSpendControls({ maxAmountPerPayment: "$0.05" })` or the `onPaymentRequested` check above.
+- Cap every payment at `$0.05` (the call costs $0.01): `setSpendControls({ maxAmountPerPayment: "$0.05" })` or the `onPaymentRequested` check above.
 - Use a dedicated buyer wallet with a small USDC balance; never reuse a treasury key. Never print or log the key.
 - The service's `payTo` address cannot be the payer (the facilitator rejects `self_send_not_allowed`).
 - Budget per task: free preview first, at most one paid report per contract per decision.
@@ -151,4 +151,4 @@ Caveats (from the service's own rubric, also served by `scoring_rubric`):
 | 504 | analysis timeout (24 s hard deadline) |
 
 x402 settles only successful responses, so every non-2xx above costs nothing. MCP failures come back as `isError: true` and are not settled either.
-A `402` that survives the client wrapper usually means: wallet has no USDC on Base, the cap is below $0.02, or the scheme network is not `eip155:8453`/`eip155:*`.
+A `402` that survives the client wrapper usually means: wallet has no USDC on Base, the cap is below $0.01, or the scheme network is not `eip155:8453`/`eip155:*`.

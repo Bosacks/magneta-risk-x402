@@ -3,7 +3,7 @@ import { declareDiscoveryExtension } from "@x402/extensions/bazaar";
 import { CHAINS } from "./chains.js";
 
 export const DESCRIPTION =
-  "Smart contract security and token risk check before you trade, approve, bridge or integrate: deterministic 0-100 risk score for any deployed contract on 20 EVM chains. Flags rug-pull levers (owner mint, blacklist, pause, adjustable fees, upgradeable proxy, ownership not renounced), SELFDESTRUCT/DELEGATECALL, verified source and aderyn static analysis. Read-only; failed analyses are not charged.";
+  "Smart contract security and token risk check before you trade, approve, bridge or integrate: deterministic 0-100 risk score for any deployed contract on 20 EVM chains. Flags rug-pull levers (owner mint, blacklist, pause, adjustable fees, upgradeable proxy, ownership not renounced), SELFDESTRUCT/DELEGATECALL, verified source and aderyn static analysis. Read-only. Errors (400 bad input, 422 not a contract, 502/504 upstream failure) are not charged.";
 
 /** Bazaar service metadata on the `resource` object. Search ranks on it: without serviceName/tags/iconUrl the
  *  listing was indexed but never returned by /discovery/search (measured 2026-10-24, 4 queries, absent from all).

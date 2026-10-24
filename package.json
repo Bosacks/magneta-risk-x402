@@ -1,6 +1,6 @@
 {
   "name": "magneta-risk-x402",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "type": "module",
   "description": "Magneta Contract Risk: on-chain smart-contract risk reports sold to AI agents through x402 micropayments (HTTP + MCP)",
