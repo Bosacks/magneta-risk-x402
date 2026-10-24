@@ -3,7 +3,8 @@
 ## 2026-10-24 — Bazaar : indexé mais introuvable en recherche → nom, mots-clés, icône
 - Mesuré : `/discovery/search` (4 requêtes : smart contract risk, contract risk score, token rug check, honeypot) → service ABSENT ; concurrents en tête portent `serviceName` + `tags` + `iconUrl`, notre 402 HTTP n'en avait aucun
 - Ajout `SERVICE_NAME`, 5 `SERVICE_TAGS`, `iconUrl` sur la route HTTP et l'outil MCP ; route `/icon.png` (logo M recadré 256 px, sans filigrane Gemini) ; `image` dans le fichier ERC-8004 ; test des 3 champs contre les assainisseurs du SDK (+ jumeaux négatifs)
-- Vérifié en local : 402 annonce les 3 champs, icône 200 ; à déployer puis paiements de rafraîchissement HTTP + MCP
+- Déployé par Dominique ; achats de rafraîchissement HTTP (tx 0x173e3dc4…) + MCP (tx 0xc0c0beee…) ; fiche HTTP relue ~16:16 UTC avec nom, mots-clés, icône (rehébergée Cloudinary) ; fiche MCP relue SANS ces champs
+- Recherche remesurée : « contract risk score » 1er, « smart contract risk » 2e ; toujours absent de « token rug check », « honeypot token check », « smart contract security », « token risk report »
 
 ## 2026-10-23 — Identité ERC-8004, plugin ElizaOS, skill ClawHub, textes de lancement
 - Fichier d'identité ERC-8004 + route `/.well-known/agent-registration.json` ; registre Base `0x8004A169…a432` vérifié on-chain (AgentIdentity 2.0.0) ; script `erc8004-register.ts` (calldata + `--check`) ; NON déployé (déploiement prod refusé à l'agent) ; inscription à signer par Dominique
