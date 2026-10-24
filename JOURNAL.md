@@ -7,6 +7,8 @@
 - Fil X à 8 messages (4 pièges) + 3 images 1600×900 avec textes alternatifs dans `docs/launch/images/`
 - Déployé + minuteur installé par Dominique ; 1er passage manuel du script d'entretien OK (tx 0x3031fb98…) + achat MCP (tx 0x1d5ac458…), 0,01 USDC chacun vérifiés on-chain ; fiche relue en 1 min (prix 10000, nouvelle description)
 - Recherche juste après : « contract risk score » 1er, « smart contract risk » 3e, « smart contract security » 6e (nouveau) ; absent de token rug check, honeypot, token risk report, rug pull check, token security check (qualité recalculée sous 6 h)
+- Republiés par Dominique : npm client 0.1.2 + plugin 0.1.1 (vérifiés), ClawHub 0.1.1 soumise 22:16 UTC (analyse statique propre, ClawScan en file d'attente à +1 h 40) ; fil X publié
+- Compteurs de départ après X : 0 étoile, 1 visite GitHub/14 j, 19 téléchargements npm/sem., Bazaar HTTP 4 payeurs, MCP 2
 - Recherche classement : documentation officielle vérifiée (pertinence + qualité 30 j recalculée toutes les 6 h ; curation éditoriale agentic.market) ; validateur officiel 26/26
 
 ## 2026-10-24 — Bazaar : indexé mais introuvable en recherche → nom, mots-clés, icône
