@@ -1,5 +1,10 @@
 # Journal — magneta-risk-x402
 
+## 2026-10-24 — Bazaar : indexé mais introuvable en recherche → nom, mots-clés, icône
+- Mesuré : `/discovery/search` (4 requêtes : smart contract risk, contract risk score, token rug check, honeypot) → service ABSENT ; concurrents en tête portent `serviceName` + `tags` + `iconUrl`, notre 402 HTTP n'en avait aucun
+- Ajout `SERVICE_NAME`, 5 `SERVICE_TAGS`, `iconUrl` sur la route HTTP et l'outil MCP ; route `/icon.png` (logo M recadré 256 px, sans filigrane Gemini) ; `image` dans le fichier ERC-8004 ; test des 3 champs contre les assainisseurs du SDK (+ jumeaux négatifs)
+- Vérifié en local : 402 annonce les 3 champs, icône 200 ; à déployer puis paiements de rafraîchissement HTTP + MCP
+
 ## 2026-10-23 — Identité ERC-8004, plugin ElizaOS, skill ClawHub, textes de lancement
 - Fichier d'identité ERC-8004 + route `/.well-known/agent-registration.json` ; registre Base `0x8004A169…a432` vérifié on-chain (AgentIdentity 2.0.0) ; script `erc8004-register.ts` (calldata + `--check`) ; NON déployé (déploiement prod refusé à l'agent) ; inscription à signer par Dominique
 - Plugin `@magnetafinance/plugin-contract-risk` 0.1.0 (ElizaOS core 1.7.2, 2 actions, plafond par paiement, 11 tests) ; registre ElizaOS FERMÉ aux tiers depuis août 2026 → publication npm seulement

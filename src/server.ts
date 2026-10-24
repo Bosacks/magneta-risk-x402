@@ -13,7 +13,7 @@ import { ExactSvmScheme } from "@x402/svm/exact/server";
 import { paymentMiddleware, x402ResourceServer } from "@x402/express";
 import { createPaymentWrapper } from "@x402/mcp";
 import { bazaarResourceServerExtension } from "@x402/extensions/bazaar";
-import { DESCRIPTION, httpDiscovery, mcpDiscovery } from "./discovery.js";
+import { DESCRIPTION, SERVICE_NAME, SERVICE_TAGS, httpDiscovery, iconUrl, mcpDiscovery } from "./discovery.js";
 import { ADDRESS_RE, CHAINS, isSupportedChain } from "./chains.js";
 import { NETWORK, PORT, PRICE, PUBLIC_URL, SOLANA_NETWORK, SOLANA_PAY_TO, need } from "./config.js";
 import { makeFacilitatorClient } from "./facilitator-client.js";
@@ -47,7 +47,7 @@ app.set("trust proxy", "loopback");
 app.get("/health", (_req, res) =>
   res.json({
     status: "ok", network, price: PRICE, paymentNetworks: [network, ...(solanaPayTo ? [solanaNetwork] : [])], chains: Object.keys(CHAINS).map(Number),
-    freeRoutes: ["GET /health", "GET /v1/flags/:chainId/:address", "GET /.well-known/agent-registration.json"],
+    freeRoutes: ["GET /health", "GET /v1/flags/:chainId/:address", "GET /.well-known/agent-registration.json", "GET /icon.png"],
     paidRoutes: ["GET /v1/risk/:chainId/:address"],
     freeTools: ["contract_quick_flags", "supported_chains", "scoring_rubric"],
     paidTools: ["contract_risk_summary"],
@@ -62,6 +62,12 @@ for (const path of ["/.well-known/agent-registration.json", "/agent-registration
     res.type("application/json").send(agentRegistration);
   });
 }
+
+// Service icon (Bazaar iconUrl, ERC-8004 image), 256x256 PNG, read once at startup like the registration file.
+const icon = readFileSync(new URL("../public/icon.png", import.meta.url));
+app.get("/icon.png", (_req, res) => {
+  res.type("image/png").set("Cache-Control", "public, max-age=86400").send(icon);
+});
 
 /** Shared free input validation: unsupported chain / bad address answer 400 before anything else. */
 const validateTarget: express.RequestHandler = (req, res, next) => {
@@ -115,6 +121,9 @@ app.use(
         ],
         description: DESCRIPTION,
         mimeType: "application/json",
+        serviceName: SERVICE_NAME,
+        tags: SERVICE_TAGS,
+        iconUrl: iconUrl(PUBLIC_URL()),
         extensions: httpDiscovery(),
       },
     },
@@ -147,7 +156,7 @@ const toolAccepts = [
 ];
 const paid = createPaymentWrapper(resourceServer, {
   accepts: toolAccepts,
-  resource: { url: `${PUBLIC_URL()}/mcp`, description: DESCRIPTION, mimeType: "application/json", serviceName: "Magneta Contract Risk", tags: ["security", "smart-contracts", "risk"] },
+  resource: { url: `${PUBLIC_URL()}/mcp`, description: DESCRIPTION, mimeType: "application/json", serviceName: SERVICE_NAME, tags: SERVICE_TAGS, iconUrl: iconUrl(PUBLIC_URL()) },
   extensions: mcpDiscovery(),
 });
 

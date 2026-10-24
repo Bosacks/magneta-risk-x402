@@ -2,6 +2,7 @@
   "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
   "name": "Magneta Contract Risk",
   "description": "Deterministic smart-contract risk report for any deployed contract on 20 EVM chains: 0-100 score, proxy/upgradeability, owner and pause state, mint/blacklist/fee selectors, SELFDESTRUCT, verified source and aderyn static analysis. Use before trading, approving, bridging or integrating a token or protocol. Read-only; failed analyses are not charged.",
+  "image": "https://x402.magneta.finance/icon.png",
   "services": [
     {
       "name": "web",

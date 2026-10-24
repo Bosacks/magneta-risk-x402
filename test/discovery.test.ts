@@ -2,8 +2,8 @@
 // (path params arrive as strings), otherwise the facilitator rejects discovery and the service is never catalogued.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { validateDiscoveryExtension, type DiscoveryExtension } from "@x402/extensions/bazaar";
-import { httpDiscovery, mcpDiscovery } from "../src/discovery.js";
+import { isValidIconUrl, isValidServiceName, sanitizeTags, validateDiscoveryExtension, type DiscoveryExtension } from "@x402/extensions/bazaar";
+import { SERVICE_NAME, SERVICE_TAGS, httpDiscovery, iconUrl, mcpDiscovery } from "../src/discovery.js";
 
 test("HTTP discovery declaration validates with string path params", () => {
   const ext = structuredClone(httpDiscovery().bazaar) as DiscoveryExtension & { info: { input: Record<string, unknown> } };
@@ -19,4 +19,14 @@ test("MCP discovery declaration validates and carries the example the Bazaar nee
   const input = (ext as { info: { input: Record<string, unknown> } }).info.input;
   assert.deepEqual(input.example, { chainId: 8453, address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" });
   assert.equal(input.transport, "streamable-http");
+});
+
+test("service metadata survives the SDK sanitizers unchanged (search ranks on it)", () => {
+  assert.equal(isValidServiceName(SERVICE_NAME), true);
+  assert.deepEqual(sanitizeTags(SERVICE_TAGS), SERVICE_TAGS);
+  assert.equal(isValidIconUrl(iconUrl("https://x402.magneta.finance")), true);
+  // negative twins: the sanitizers really reject what they should
+  assert.equal(isValidServiceName("x".repeat(33)), false);
+  assert.equal(sanitizeTags([...SERVICE_TAGS, "sixth"])?.length, 5);
+  assert.equal(isValidIconUrl("http://127.0.0.1/icon.png"), false);
 });
