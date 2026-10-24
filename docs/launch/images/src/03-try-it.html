@@ -1,0 +1,17 @@
+<!doctype html><meta charset=utf-8><style>*{box-sizing:border-box;margin:0}body{width:1600px;height:900px;background:radial-gradient(ellipse at 15% 10%,#2a1f4a 0%,#1c1c24 55%);color:#eef0f6;font-family:"DejaVu Sans","Helvetica Neue",Arial,sans-serif;padding:60px 100px;overflow:hidden;position:relative}.mono{font-family:"DejaVu Sans Mono",Menlo,Consolas,monospace}.grad{background:linear-gradient(90deg,#5be7f5,#4f8cff,#9b5cff,#e04fd0);-webkit-background-clip:text;color:transparent}.bar{position:absolute;left:0;right:0;bottom:0;height:8px;background:linear-gradient(90deg,#5be7f5,#4f8cff,#9b5cff,#e04fd0)}
+.t{background:#0e0e14;border:2px solid #3d3d5c;border-radius:18px;height:690px;overflow:hidden}.tb{background:#26263a;height:46px;display:flex;align-items:center;padding-left:20px;gap:10px}.d{width:16px;height:16px;border-radius:50%;background:#555}pre{font-family:"DejaVu Sans Mono",monospace;font-size:27px;line-height:1.36;padding:24px 32px;color:#dfe3f0;white-space:pre-wrap;word-break:break-all}.k{color:#5be7f5}.w{color:#e9a6ff}.r{color:#ff7b8a}.cap{font-size:34px;margin-top:22px;color:#c9cdda}</style>
+<body><div class=t><div class=tb><div class=d></div><div class=d></div><div class=d></div></div><pre>
+<span class=k>$</span> curl https://x402.magneta.finance/v1/flags/8453/\
+    0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913
+
+{
+  "chainId": 8453,
+  "erc20": { "symbol": <span class=w>"USDC"</span>, "ownerRenounced": false, "paused": false },
+  "proxy": { "type": <span class=w>"zeppelinos"</span> },
+  "selectors": { "found": [<span class=w>"mint(address,uint256)"</span>, <span class=w>"pause()"</span>,
+                           <span class=w>"blacklist(address)"</span>, <span class=w>"upgradeTo(address)"</span>, ...] },
+  <span class=k>"partialScore"</span>: 60,
+  <span class=k>"partialLevel"</span>: <span class=r>"high"</span>,
+  <span class=k>"flags"</span>: [<span class=w>"upgradeable-proxy"</span>, <span class=w>"owner-not-renounced"</span>,
+            <span class=w>"mint-function"</span>, <span class=w>"blacklist-function"</span>, <span class=w>"pausable"</span>]
+}</pre></div><div class=cap>Free preview, no wallet. Full report: $0.01 over x402.</div><div class=bar></div></body>

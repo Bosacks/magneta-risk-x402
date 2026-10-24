@@ -1,5 +1,12 @@
 # Journal — magneta-risk-x402
 
+## 2026-10-24 — 2e session : prix 0,01 $, erreurs documentées, achat d'entretien, images X
+- Décision Dominique : prix 0,02 → 0,01 $ (médiane mesurée de la catégorie : 0,01 $, 22 concurrents sur 41 moins chers) ; versions service/MCP 0.1.2, client 0.1.2, plugin 0.1.1, ClawHub 0.1.1 (republications à faire)
+- Erreurs documentées (exigence de curation Coinbase) : `/openapi.json` (OpenAPI 3.1 : 400, 402, 422, 429, 502, 504), tableau README, description Bazaar 450 car. (≤ 500), description de l'outil MCP payant
+- Achat d'entretien 2×/mois (le Bazaar retire une fiche après 30 j sans règlement) : `scripts/keepalive-purchase.sh` + minuteur utilisateur `deploy/keepalive/` ; installation refusée à l'agent (persistance) → à installer par Dominique
+- Fil X à 8 messages (4 pièges) + 3 images 1600×900 avec textes alternatifs dans `docs/launch/images/`
+- Recherche classement : documentation officielle vérifiée (pertinence + qualité 30 j recalculée toutes les 6 h ; curation éditoriale agentic.market) ; validateur officiel 26/26
+
 ## 2026-10-24 — Bazaar : indexé mais introuvable en recherche → nom, mots-clés, icône
 - Mesuré : `/discovery/search` (4 requêtes : smart contract risk, contract risk score, token rug check, honeypot) → service ABSENT ; concurrents en tête portent `serviceName` + `tags` + `iconUrl`, notre 402 HTTP n'en avait aucun
 - Ajout `SERVICE_NAME`, 5 `SERVICE_TAGS`, `iconUrl` sur la route HTTP et l'outil MCP ; route `/icon.png` (logo M recadré 256 px, sans filigrane Gemini) ; `image` dans le fichier ERC-8004 ; test des 3 champs contre les assainisseurs du SDK (+ jumeaux négatifs)
