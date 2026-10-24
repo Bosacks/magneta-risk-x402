@@ -1,0 +1,7 @@
+[Unit]
+Description=Magneta Contract Risk keep-alive purchase (keeps the Bazaar listing within its 30-day settlement window)
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/home/dominique/Projets/magneta-risk-x402/scripts/keepalive-purchase.sh

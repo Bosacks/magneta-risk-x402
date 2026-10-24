@@ -1,0 +1,11 @@
+[Unit]
+Description=Twice-monthly keep-alive purchase for Magneta Contract Risk
+
+[Timer]
+# 1st and 15th at 14:00 local; Persistent catches up at next login if the PC was off.
+OnCalendar=*-*-01,15 14:00:00
+Persistent=true
+RandomizedDelaySec=30min
+
+[Install]
+WantedBy=timers.target
