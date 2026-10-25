@@ -1,5 +1,10 @@
 # Journal — magneta-risk-x402
 
+## 2026-10-25 — Vérifications J+1
+- ClawHub 0.1.1 toujours invisible à +17 h 45 (seule 0.1.0 publique, 89 téléchargements, 0 installation) → relance support à faire
+- Bazaar : contract risk score 1er, smart contract risk 3e, smart contract security 7e ; absent des 5 requêtes « token/rug » ; compteurs inchangés (HTTP 10 appels/4 payeurs, MCP 8/2)
+- Effet du fil X à J+1 : 0 étoile, 2 visites GitHub/14 j (1 avant), npm inchangé, aucun nouveau paiement (solde 0,28 USDC)
+
 ## 2026-10-24 — 2e session : prix 0,01 $, erreurs documentées, achat d'entretien, images X
 - Décision Dominique : prix 0,02 → 0,01 $ (médiane mesurée de la catégorie : 0,01 $, 22 concurrents sur 41 moins chers) ; versions service/MCP 0.1.2, client 0.1.2, plugin 0.1.1, ClawHub 0.1.1 (republications à faire)
 - Erreurs documentées (exigence de curation Coinbase) : `/openapi.json` (OpenAPI 3.1 : 400, 402, 422, 429, 502, 504), tableau README, description Bazaar 450 car. (≤ 500), description de l'outil MCP payant
