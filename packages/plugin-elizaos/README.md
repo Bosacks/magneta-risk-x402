@@ -28,7 +28,7 @@ export const character = {
     secrets: {
       CONTRACT_RISK_EVM_PRIVATE_KEY: "0x...", // optional, only for the paid action
     },
-    CONTRACT_RISK_MAX_USD: "0.05",
+    CONTRACT_RISK_MAX_USD: "0.01",
   },
 };
 ```
@@ -38,7 +38,7 @@ export const character = {
 | Setting | Required | Default | Purpose |
 |---|---|---|---|
 | `CONTRACT_RISK_EVM_PRIVATE_KEY` | only for the paid action | none | Hex private key of a wallet holding USDC on Base. No ETH is needed (EIP-3009 signature, the facilitator pays gas). Without it `CONTRACT_RISK_REPORT` is never offered. Use a dedicated wallet funded with a few cents to a few dollars. |
-| `CONTRACT_RISK_MAX_USD` | no | `0.05` | Per-call spend cap. If the service asks for more, the action refuses and nothing is signed. The current price is $0.01. |
+| `CONTRACT_RISK_MAX_USD` | no | `0.01` | Per-call spend cap, equal to the price of one report. If the service asks for more, the action refuses and nothing is signed. |
 | `CONTRACT_RISK_BASE_URL` | no | `https://x402.magneta.finance` | Service base URL. |
 
 ## Usage

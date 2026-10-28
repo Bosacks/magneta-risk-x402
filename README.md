@@ -112,7 +112,7 @@ pnpm type-check && pnpm test    # unit tests, no network
 pnpm analyze 84532 0x036CbD53842c5426634e7929541eC2318f3dCF7e   # free local run, prints the report
 ```
 
-Buying (needs a funded buyer key, spend cap $0.05; never put this key on the server):
+Buying (needs a funded buyer key, spend cap $0.01 = the price; never put this key on the server):
 
 ```bash
 BUYER_PRIVATE_KEY=0x... pnpm buy-once        # HTTP; prints the report and the PAYMENT-RESPONSE tx hash

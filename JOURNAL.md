@@ -1,5 +1,11 @@
 # Journal — magneta-risk-x402
 
+## 2026-10-28 — ClawHub 0.1.1 publiée mais « suspicious » → plafonds alignés sur le prix
+- ClawHub a débloqué la 0.1.1 (correctifs ClawScan #126 / ClawHub #4121) ; revue de sécurité « suspicious » (SkillSpector 46/100, MEDIUM) : exemples plafonnés à 0,05 $ alors que l'utilisateur approuve 0,01 $, paquet compagnon non épinglé
+- Corrigé : plafond exact 0,01 $ (HTTP `maxAmountPerPayment`, MCP `onPaymentRequested` limité à USDC sur Base ≤ 10 000), schéma Base seul, `@magnetafinance/contract-risk@0.1.2` épinglé ; les 4 exemples compilent contre les types réels
+- Même défaut corrigé dans le client (défaut 0,01 $, v0.1.3) et le plugin ElizaOS (défaut 0,01, v0.1.2) ; skill ClawHub v0.1.2
+- À republier par Dominique : ClawHub 0.1.2, npm client 0.1.3, plugin 0.1.2 ; CLI clawhub 0.24.1 disponible
+
 ## 2026-10-25 — Vérifications J+1
 - ClawHub 0.1.1 toujours invisible à +17 h 45 (seule 0.1.0 publique, 89 téléchargements, 0 installation) → relance support à faire
 - Bazaar : contract risk score 1er, smart contract risk 3e, smart contract security 7e ; absent des 5 requêtes « token/rug » ; compteurs inchangés (HTTP 10 appels/4 payeurs, MCP 8/2)

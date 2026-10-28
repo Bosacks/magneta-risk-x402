@@ -27,7 +27,7 @@ export interface ContractRiskClientOptions {
   account?: PayerAccount;
   /** Default https://x402.magneta.finance */
   baseUrl?: string;
-  /** Per-payment cap, x402 price string. Default "$0.05" (the call costs $0.01). */
+  /** Per-payment cap, x402 price string. Default "$0.01", exactly the price of one report. */
   maxAmountPerPayment?: `$${string}`;
   /** Inject a fetch implementation (tests, proxies). Default: global fetch. */
   fetch?: typeof fetch;
@@ -61,7 +61,7 @@ export function createContractRiskClient(opts: ContractRiskClientOptions): Contr
   if (!account) throw new TypeError("createContractRiskClient needs `privateKey` or `account`");
 
   const client = new x402Client();
-  client.setSpendControls({ maxAmountPerPayment: opts.maxAmountPerPayment ?? "$0.05" });
+  client.setSpendControls({ maxAmountPerPayment: opts.maxAmountPerPayment ?? "$0.01" });
   client.register("eip155:*", new ExactEvmScheme(account));
   const paidFetch = wrapFetchWithPayment(baseFetch, client);
   const httpClient = new x402HTTPClient(client);

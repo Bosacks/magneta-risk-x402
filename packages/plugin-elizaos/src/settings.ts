@@ -1,7 +1,7 @@
 import type { IAgentRuntime } from "@elizaos/core";
 
 export const DEFAULT_BASE_URL = "https://x402.magneta.finance";
-export const DEFAULT_MAX_USD = 0.05;
+export const DEFAULT_MAX_USD = 0.01; // exactly the price of one report
 
 function str(runtime: IAgentRuntime, key: string): string | undefined {
   const v = runtime.getSetting(key);

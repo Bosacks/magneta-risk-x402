@@ -19,7 +19,7 @@ import { createContractRiskClient } from "@magnetafinance/contract-risk";
 
 const risk = createContractRiskClient({
   privateKey: process.env.BUYER_PRIVATE_KEY as `0x${string}`, // wallet with USDC on Base; use a dedicated low-balance key
-  maxAmountPerPayment: "$0.05",                                // hard cap per payment (default)
+  maxAmountPerPayment: "$0.01",                                // hard cap per payment = the price (default)
 });
 
 const preview = await risk.quickFlags(8453, "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"); // free
